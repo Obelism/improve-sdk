@@ -1,0 +1,23 @@
+{
+  "name": "obelism-improve-sdk",
+  "version": "1.0.0",
+  "description": "Obelism Improve SDK",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "bunchee",
+    "dev": "bunchee --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "bunchee": "^4.2.0",
+    "typescript": "^5.3.3"
+  }
+}
