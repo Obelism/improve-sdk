@@ -5,6 +5,9 @@
 	"author": "",
 	"license": "ISC",
 	"main": "./src/index.ts",
+	"files": [
+		"dist"
+	],
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -13,8 +16,11 @@
 		}
 	},
 	"scripts": {
-		"build": "bunchee",
+		"build": "bunchee -m",
 		"dev": "bunchee --watch",
+		"test": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"test:ci": "vitest run",
 		"lint": "eslint",
 		"lint:fix": "eslint --fix",
 		"lint-staged": "lint-staged",
@@ -28,6 +34,9 @@
 	"lint-staged": {
 		"*": "prettier --write --ignore-unknown"
 	},
+	"dependencies": {
+		"ua-parser-js": "^1.0.37"
+	},
 	"devDependencies": {
 		"@typescript-eslint/eslint-plugin": "^6.15.0",
 		"@vercel/git-hooks": "^1.0.0",
@@ -38,6 +47,7 @@
 		"eslint-plugin-simple-import-sort": "^10.0.0",
 		"lint-staged": "^15.2.0",
 		"prettier": "^3.1.1",
-		"typescript": "^5.3.3"
+		"typescript": "^5.3.3",
+		"vitest": "^1.1.0"
 	}
 }

@@ -3,38 +3,6 @@
 	"plugins": ["no-relative-import-paths", "simple-import-sort"],
 	"rules": {
 		"@typescript-eslint/no-explicit-any": "off",
-		"@typescript-eslint/consistent-type-definitions": ["error", "type"],
-		"no-relative-import-paths/no-relative-import-paths": [
-			"error",
-			{
-				"allowSameFolder": true,
-				"rootDir": "src"
-			}
-		],
-		"simple-import-sort/imports": [
-			"error",
-			{
-				"groups": [
-					["^react", "^@?\\w"],
-					// Anything not matched in another group.
-					["^"],
-					// Global styles
-					["^styles"],
-					// Import utils first
-					[
-						"^config",
-						"^types",
-						"^server",
-						"^context",
-						"^elements",
-						"^scopes",
-						"^hooks",
-						"^utils"
-					],
-					// Local imports last, should only be styling
-					["^\\."]
-				]
-			}
-		]
+		"@typescript-eslint/consistent-type-definitions": ["error", "type"]
 	}
 }
