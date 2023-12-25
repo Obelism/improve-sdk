@@ -32,7 +32,6 @@ test('Test: 50/50', () => {
 
 	const delta = diff(outcomeCount.control, outcomeCount.variation)
 
-	console.log('delta', delta)
 	expect(delta).toBeLessThanOrEqual(100)
 })
 
