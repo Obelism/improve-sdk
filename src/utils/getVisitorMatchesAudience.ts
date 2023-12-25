@@ -1,4 +1,4 @@
-import { AudienceValue } from '../config'
+import { AudienceValue } from '../types'
 import { AudienceParamKey } from '../config/audiences'
 import { ParsedUserAgent } from './parseUserAgent'
 

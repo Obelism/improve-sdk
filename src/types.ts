@@ -1,5 +1,7 @@
 import { AudienceParamKey } from './config/audiences'
 
+export type EnvironmentOption = 'develop' | 'staging' | 'production'
+
 export type TestState = 'draft' | 'active' | 'finished' | 'archived'
 
 export type FeatureOption = {

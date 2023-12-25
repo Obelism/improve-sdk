@@ -1,4 +1,4 @@
-import { TestOption } from '../config'
+import { TestOption } from '../types'
 
 export const getRandomTestValue = (options: TestOption[]) => {
 	if (options.length === 0) return null
