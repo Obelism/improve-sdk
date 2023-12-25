@@ -32,7 +32,7 @@ export class ImproveServerSDK extends BaseImproveSDK {
 	getTestValue = (testSlug: string, visitorId: string, userAgent: string) => {
 		if (!this.config) return null
 
-		const testConfig = this.config.tests.find(({ slug }) => slug === testSlug)
+		const testConfig = this.config.tests[testSlug]
 
 		if (!testConfig) return null
 
@@ -46,10 +46,8 @@ export class ImproveServerSDK extends BaseImproveSDK {
 		this.#visitors[visitorId][userAgent] =
 			this.#visitors[visitorId][userAgent] || parseUserAgent(userAgent)
 
-		const audience = this.config.audience[testConfig.audience]
-
 		const visitorMatchesAudience = getVisitorMatchesAudience(
-			audience,
+			this.config.audience[testConfig.audience],
 			this.#visitors[visitorId][userAgent],
 		)
 

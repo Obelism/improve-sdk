@@ -47,30 +47,28 @@ export class ImproveClientSDK extends BaseImproveSDK {
 	getTestValue = (testSlug: string) => {
 		if (!this.config) return null
 
-		const testConfig = this.config.tests.find(({ slug }) => slug === testSlug)
+		const testConfig = this.config.tests[testSlug]
 
 		if (!testConfig) return null
 
 		if (!this.#visitorId || !this.#visitor) return testConfig.defaultValue
 		if (this.#visitor?.[testSlug]) return this.#visitor[testSlug]
 
-		const audience = this.config.audience[testConfig.audience]
-
 		const visitorMatchesAudience = getVisitorMatchesAudience(
-			audience,
+			this.config.audience[testConfig.audience],
 			this.#visitor,
 		)
 
 		if (!visitorMatchesAudience) return testConfig.defaultValue
 
 		const testValue =
-			getCookie(testConfig.slug) || getRandomTestValue(testConfig.options)
+			getCookie(testSlug) || getRandomTestValue(testConfig.options)
 
 		if (!testValue) return null
 
 		this.#visitor[testSlug] = testValue
 
-		setCookie(testConfig.slug, testValue)
+		setCookie(testSlug, testValue)
 
 		return testValue
 	}

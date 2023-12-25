@@ -19,11 +19,14 @@ export type TestOption = {
 
 export type Feature = {
 	name: string
-	slug: string
 	defaultValue: string
 	audience: string
 	allocation: number
 	options: FeatureOption[]
+}
+
+export type Features = {
+	[featureSlug in string]: Feature
 }
 
 export type Events = {
@@ -42,7 +45,6 @@ export type Result = {
 
 export type Test = {
 	name: string
-	slug: string
 	defaultValue: string
 	audience: string
 	allocation: number
@@ -50,16 +52,20 @@ export type Test = {
 	events: Events
 }
 
+export type Tests = {
+	[testSlug in string]: Test
+}
+
 export type AudienceValue = { [Key in AudienceParamKey]: string }
 
 export type Audience = {
-	[AudienceKey in string]: AudienceValue
+	[audienceSlug in string]: AudienceValue
 }
 
 export type Configuration = {
 	name: string
 	version: number
-	features: Feature[]
-	tests: Test[]
+	features: Features
+	tests: Tests
 	audience: Audience
 }
