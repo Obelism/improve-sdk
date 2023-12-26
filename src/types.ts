@@ -18,6 +18,7 @@ export type TestOption = {
 }
 
 export type Feature = {
+	id: string
 	name: string
 	defaultValue: string
 	audience: string
@@ -44,6 +45,7 @@ export type Result = {
 }
 
 export type Test = {
+	id: string
 	name: string
 	defaultValue: string
 	audience: string

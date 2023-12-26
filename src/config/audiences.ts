@@ -14,7 +14,6 @@ export const AUDIENCE_PARAMS = {
 		'embedded',
 		'desktop',
 	],
-	// screen: ['small', 'medium', 'large', 'xlarge'],
 	browser: [
 		'chrome',
 		'safari',

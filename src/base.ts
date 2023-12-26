@@ -1,3 +1,4 @@
+import { CONFIG_URL } from './config/urls'
 import { Configuration, EnvironmentOption } from './types'
 import { timeoutFetch } from './utils/timeoutFetch'
 
@@ -17,10 +18,6 @@ export type ImproveArgs = {
 	analyticsUrls: string
 }
 
-const BASE_URL = 'https://improve.obelism.studio'
-const CONFIG_URL = `${BASE_URL}/config`
-const ANALYTICS_URL = `${BASE_URL}/api/log`
-
 export class BaseImproveSDK {
 	#configFetch: ConfigFetch | null = null
 
@@ -29,8 +26,7 @@ export class BaseImproveSDK {
 	constructor({ config, analyticsUrls }: ImproveArgs) {
 		if (!config) throw new Error('Config is required')
 
-		// @ts-expect-error Checking what type config is
-		if (typeof config.organizationId === 'string') {
+		if (typeof (config as FetchConfigParams).organizationId === 'string') {
 			config = config as FetchConfigParams
 			this.#configFetch = {
 				url: [CONFIG_URL, config.organizationId, config.environment].join('/'),
@@ -60,11 +56,5 @@ export class BaseImproveSDK {
 			return
 		}
 		this.config = await res.json()
-	}
-
-	postAnalytic = () => {
-		fetch(ANALYTICS_URL, {
-			method: 'POST',
-		})
 	}
 }

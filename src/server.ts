@@ -29,12 +29,15 @@ export class ImproveServerSDK extends BaseImproveSDK {
 
 	generateVisitorId = () => `visi_${getRandomString(26).toUpperCase()}`
 
-	getTestValue = (testSlug: string, visitorId: string, userAgent: string) => {
+	getTestConfig = (testSlug: string) => {
 		if (!this.config) return null
+		return this.config.tests[testSlug]
+	}
 
-		const testConfig = this.config.tests[testSlug]
+	getTestValue = (testSlug: string, visitorId: string, userAgent: string) => {
+		const testConfig = this.getTestConfig(testSlug)
 
-		if (!testConfig) return null
+		if (!testConfig || !this.config) return null
 
 		if (!visitorId) return testConfig.defaultValue
 
@@ -52,6 +55,11 @@ export class ImproveServerSDK extends BaseImproveSDK {
 		)
 
 		if (!visitorMatchesAudience) return testConfig.defaultValue
+
+		if (Math.random() * 100 > testConfig.allocation) {
+			this.#visitors[visitorId][userAgent][testSlug] = testConfig.defaultValue
+			return this.#visitors[visitorId][userAgent][testSlug]
+		}
 
 		const testValue = getRandomTestValue(testConfig.options)
 

@@ -5,6 +5,8 @@ import { getRandomTestValue } from './utils/getRandomTestValue'
 import { BaseImproveSDK } from './base'
 import { getRandomString } from './utils/getRandomString'
 import { getCookie, setCookie } from './utils/clientCookie'
+import { ANALYTICS_URL } from './config/urls'
+import { getScreenSize } from './utils/getScreenSize'
 
 type FetchConfigParams = {
 	organizationId: string
@@ -21,17 +23,44 @@ type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
 }
 
+export type CreateAnalytic = {
+	test_id: string
+	test_value: string
+	visitor_id: string
+
+	pointer: string
+	device: string
+	screen: string
+	browser: string
+	os: string
+	visitor: string
+
+	event: string
+	message: string
+}
+
+type TrackedAnalytics = {
+	[TestSlug: string]: {
+		[Event: string]: boolean
+	}
+}
+
 const COOKIE_NAME_VISITOR = 'visitorId'
 
 export class ImproveClientSDK extends BaseImproveSDK {
 	#visitor: Visitor | undefined
+	#visitorRecurring: boolean = false
 
 	#visitorId: string = ''
 
+	#analytics: TrackedAnalytics = {}
+
 	setupVisitor = (userAgent: string) => {
+		const cookieVisitorId = getCookie(COOKIE_NAME_VISITOR)
+		this.#visitorRecurring = Boolean(cookieVisitorId)
+
 		this.#visitorId =
-			getCookie(COOKIE_NAME_VISITOR) ||
-			`visi_${getRandomString(26).toUpperCase()}`
+			cookieVisitorId || `visi_${getRandomString(26).toUpperCase()}`
 
 		const parsedUserAgent = parseUserAgent(userAgent)
 
@@ -61,6 +90,11 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		if (!visitorMatchesAudience) return testConfig.defaultValue
 
+		if (Math.random() * 100 > testConfig.allocation) {
+			this.#visitor[testSlug] = testConfig.defaultValue
+			return this.#visitor?.[testSlug]
+		}
+
 		const testValue =
 			getCookie(testSlug) || getRandomTestValue(testConfig.options)
 
@@ -71,5 +105,38 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		setCookie(testSlug, testValue)
 
 		return testValue
+	}
+
+	postAnalytic = (testSlug: string, event: string, message?: string) => {
+		if (!this.config) return null
+
+		const testConfig = this.config.tests[testSlug]
+
+		if (!testConfig || !this.#visitor || this.#analytics?.[testSlug]?.[event])
+			return null
+		this.#analytics[testSlug] = this.#analytics[testSlug] || {}
+		this.#analytics[testSlug][event] = true
+
+		if (!this.#visitor?.[testSlug]) this.getTestValue(testSlug)
+
+		const body: CreateAnalytic = {
+			test_id: testConfig.id,
+			test_value: this.#visitor[testSlug],
+			visitor_id: this.#visitorId,
+			pointer: this.#visitor.pointer,
+			device: this.#visitor.device,
+			screen: getScreenSize(),
+			browser: this.#visitor.browser,
+			os: this.#visitor.os,
+			visitor: this.#visitorRecurring ? 'recurring' : 'new',
+			event: event,
+			message: message || '',
+		}
+
+		fetch(ANALYTICS_URL, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(body),
+		})
 	}
 }

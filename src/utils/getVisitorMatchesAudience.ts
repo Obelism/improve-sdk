@@ -7,10 +7,7 @@ export const getVisitorMatchesAudience = (
 	visitorParams: ParsedUserAgent,
 ) => {
 	if (!audience) return true
-	return Object.entries(audience).every(
-		// @ts-expect-error All good
-		([paramKey, paramValue]: [AudienceParamKey, string]) => {
-			return visitorParams[paramKey] === paramValue
-		},
-	)
+	return Object.entries(audience).every(([paramKey, paramValue]) => {
+		return visitorParams[paramKey as AudienceParamKey] === paramValue
+	})
 }
