@@ -1,4 +1,4 @@
-import { AudienceParamKey } from './config/audiences'
+import { AudienceParamKey } from 'config/audiences'
 
 export type EnvironmentOption = 'develop' | 'staging' | 'production'
 
@@ -8,6 +8,7 @@ export type FeatureOption = {
 	name: string
 	slug: string
 	value: string | undefined
+	split: number
 }
 
 export type TestOption = {
@@ -22,7 +23,6 @@ export type Feature = {
 	name: string
 	defaultValue: string
 	audience: string
-	allocation: number
 	options: FeatureOption[]
 }
 
@@ -37,11 +37,15 @@ export type Events = {
 }
 
 export type Result = {
-	[variant: string]: {
-		start: number
-		[metric: string]: number
-		conversion: number
+	result: {
+		[variant: string]: {
+			[metric: string]: number
+		}
 	}
+	resultsByDay: {
+		label: string
+		values: { [x in string]: string | number }[]
+	}[]
 }
 
 export type Test = {

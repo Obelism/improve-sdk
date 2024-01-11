@@ -2,20 +2,16 @@ import { CONFIG_URL } from './config/urls'
 import { Configuration, EnvironmentOption } from './types'
 import { timeoutFetch } from './utils/timeoutFetch'
 
-type FetchConfigParams = {
-	organizationId: string
-	environment: EnvironmentOption
-	timeout?: number
-}
-
 type ConfigFetch = {
 	url: string
-	timeout?: number
+	timeout: number
 }
 
 export type ImproveArgs = {
-	config: FetchConfigParams | Configuration
-	analyticsUrls: string
+	organizationId: string
+	environment: EnvironmentOption
+	config?: Configuration
+	fetchTimeout?: number
 }
 
 export class BaseImproveSDK {
@@ -23,20 +19,20 @@ export class BaseImproveSDK {
 
 	config: Configuration | null = null
 
-	constructor({ config, analyticsUrls }: ImproveArgs) {
-		if (!config) throw new Error('Config is required')
-
-		if (typeof (config as FetchConfigParams).organizationId === 'string') {
-			config = config as FetchConfigParams
-			this.#configFetch = {
-				url: [CONFIG_URL, config.organizationId, config.environment].join('/'),
-				timeout: config?.timeout || undefined,
-			} as ConfigFetch
+	constructor({
+		organizationId,
+		environment,
+		config,
+		fetchTimeout,
+	}: ImproveArgs) {
+		if (config) {
+			this.config = config
 		} else {
-			this.config = config as Configuration
+			this.#configFetch = {
+				url: [CONFIG_URL, organizationId, environment].join('/'),
+				timeout: fetchTimeout || 0,
+			} as ConfigFetch
 		}
-
-		if (!analyticsUrls) throw new Error('An "analyticsUrls" is required')
 	}
 
 	fetchConfig = async () => {

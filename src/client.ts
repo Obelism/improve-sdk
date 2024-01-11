@@ -1,4 +1,3 @@
-import { Configuration, EnvironmentOption } from './types'
 import { ParsedUserAgent, parseUserAgent } from './utils/parseUserAgent'
 import { getVisitorMatchesAudience } from './utils/getVisitorMatchesAudience'
 import { getRandomTestValue } from './utils/getRandomTestValue'
@@ -7,17 +6,6 @@ import { getRandomString } from './utils/getRandomString'
 import { getCookie, setCookie } from './utils/clientCookie'
 import { ANALYTICS_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
-
-type FetchConfigParams = {
-	organizationId: string
-	environment: EnvironmentOption
-	timeout?: number
-}
-
-export type ImproveArgs = {
-	config: Configuration | FetchConfigParams
-	analyticsUrls: string
-}
 
 type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
@@ -73,6 +61,35 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		return this.#visitorId
 	}
 
+	getFeatureValue = (featureSlug: string) => {
+		if (!this.config) return null
+
+		const featureConfig = this.config.features[featureSlug]
+
+		if (!featureConfig) return null
+
+		if (!this.#visitorId || !this.#visitor) return featureConfig.defaultValue
+		if (this.#visitor?.[featureSlug]) return this.#visitor[featureSlug]
+
+		const visitorMatchesAudience = getVisitorMatchesAudience(
+			this.config.audience[featureConfig.audience],
+			this.#visitor,
+		)
+
+		if (!visitorMatchesAudience) return featureConfig.defaultValue
+
+		const featureValue =
+			getCookie(featureSlug) || getRandomTestValue(featureConfig.options)
+
+		if (!featureValue) return null
+
+		this.#visitor[featureSlug] = featureValue
+
+		setCookie(featureSlug, featureValue)
+
+		return featureValue
+	}
+
 	getTestValue = (testSlug: string) => {
 		if (!this.config) return null
 
@@ -90,7 +107,10 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		if (!visitorMatchesAudience) return testConfig.defaultValue
 
-		if (Math.random() * 100 > testConfig.allocation) {
+		if (
+			testConfig.allocation < 100 &&
+			Math.random() * 100 > testConfig.allocation
+		) {
 			this.#visitor[testSlug] = testConfig.defaultValue
 			return this.#visitor?.[testSlug]
 		}
