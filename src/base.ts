@@ -15,6 +15,9 @@ export type ImproveArgs = {
 }
 
 export class BaseImproveSDK {
+	organizationId = ''
+	environment: EnvironmentOption = 'develop'
+
 	#configFetch: ConfigFetch | null = null
 
 	config: Configuration | null = null
@@ -25,6 +28,9 @@ export class BaseImproveSDK {
 		config,
 		fetchTimeout,
 	}: ImproveArgs) {
+		this.organizationId = organizationId
+		this.environment = environment
+
 		if (config) {
 			this.config = config
 		} else {

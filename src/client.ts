@@ -6,12 +6,16 @@ import { getRandomString } from './utils/getRandomString'
 import { getCookie, setCookie } from './utils/clientCookie'
 import { ANALYTICS_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
+import { EnvironmentOption } from './types'
 
 type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
 }
 
 export type CreateAnalytic = {
+	organizationId: string
+	environment: EnvironmentOption
+
 	test_id: string
 	test_value: string
 	visitor_id: string
@@ -140,6 +144,9 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		if (!this.#visitor?.[testSlug]) this.getTestValue(testSlug)
 
 		const body: CreateAnalytic = {
+			organizationId: this.organizationId,
+			environment: this.environment,
+
 			test_id: testConfig.id,
 			test_value: this.#visitor[testSlug],
 			visitor_id: this.#visitorId,
