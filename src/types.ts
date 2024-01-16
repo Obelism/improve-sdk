@@ -61,7 +61,7 @@ export type Tests = {
 	[testSlug in string]: Test
 }
 
-export type AudienceValue = { [Key in AudienceParamKey]: string }
+export type AudienceValue = { [Key in AudienceParamKey]?: string }
 
 export type Audience = {
 	[audienceSlug in string]: AudienceValue
