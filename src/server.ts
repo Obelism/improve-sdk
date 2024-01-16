@@ -30,7 +30,7 @@ export class ImproveServerSDK extends BaseImproveSDK {
 		const featureConfig = this.getFeatureConfig(featureSlug)
 
 		if (!featureConfig || !this.config) return null
-		if (!visitorId) return featureConfig.defaultValue
+		if (!visitorId) return featureConfig.options[0].slug
 
 		if (this.#visitors?.[visitorId]?.[userAgent]?.[featureSlug]) {
 			return this.#visitors[visitorId][userAgent][featureSlug]
@@ -45,7 +45,7 @@ export class ImproveServerSDK extends BaseImproveSDK {
 			this.#visitors[visitorId][userAgent],
 		)
 
-		if (!visitorMatchesAudience) return featureConfig.defaultValue
+		if (!visitorMatchesAudience) return featureConfig.options[0].slug
 
 		const featureValue = getRandomTestValue(featureConfig.options)
 
@@ -60,7 +60,7 @@ export class ImproveServerSDK extends BaseImproveSDK {
 
 		if (!testConfig || !this.config) return null
 
-		if (!visitorId) return testConfig.defaultValue
+		if (!visitorId || !userAgent) return testConfig.defaultValue
 
 		if (this.#visitors?.[visitorId]?.[userAgent]?.[testSlug]) {
 			return this.#visitors[visitorId][userAgent][testSlug]

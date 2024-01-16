@@ -72,7 +72,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		if (!featureConfig) return null
 
-		if (!this.#visitorId || !this.#visitor) return featureConfig.defaultValue
+		if (!this.#visitorId || !this.#visitor) return featureConfig.options[0].slug
 		if (this.#visitor?.[featureSlug]) return this.#visitor[featureSlug]
 
 		const visitorMatchesAudience = getVisitorMatchesAudience(
@@ -80,7 +80,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			this.#visitor,
 		)
 
-		if (!visitorMatchesAudience) return featureConfig.defaultValue
+		if (!visitorMatchesAudience) return featureConfig.options[0].slug
 
 		const featureValue =
 			getCookie(featureSlug) || getRandomTestValue(featureConfig.options)
