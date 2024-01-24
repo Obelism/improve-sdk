@@ -2,6 +2,13 @@ import { AudienceParamKey } from 'config/audiences'
 
 export type EnvironmentOption = 'develop' | 'staging' | 'production'
 
+export type ImproveArgs = {
+	organizationId: string
+	environment: EnvironmentOption
+	config?: Configuration
+	fetchTimeout?: number
+}
+
 export type TestState = 'draft' | 'active' | 'finished' | 'archived'
 
 export type FeatureOption = {
@@ -61,7 +68,7 @@ export type Tests = {
 	[testSlug in string]: Test
 }
 
-export type AudienceValue = { [Key in AudienceParamKey]?: string }
+export type AudienceValue = { [Key in AudienceParamKey]: string }
 
 export type Audience = {
 	[audienceSlug in string]: AudienceValue

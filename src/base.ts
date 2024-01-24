@@ -1,17 +1,10 @@
 import { CONFIG_URL } from './config/urls'
-import { Configuration, EnvironmentOption } from './types'
+import { Configuration, EnvironmentOption, ImproveArgs } from './types'
 import { timeoutFetch } from './utils/timeoutFetch'
 
 type ConfigFetch = {
 	url: string
 	timeout: number
-}
-
-export type ImproveArgs = {
-	organizationId: string
-	environment: EnvironmentOption
-	config?: Configuration
-	fetchTimeout?: number
 }
 
 export class BaseImproveSDK {

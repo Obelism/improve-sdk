@@ -7,6 +7,7 @@ import { getCookie, setCookie } from './utils/clientCookie'
 import { ANALYTICS_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
 import { EnvironmentOption } from './types'
+import { COOKIE_NAME_VISITOR } from './config/constants'
 
 type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
@@ -36,8 +37,6 @@ type TrackedAnalytics = {
 		[Event: string]: boolean
 	}
 }
-
-const COOKIE_NAME_VISITOR = 'visitorId'
 
 export class ImproveClientSDK extends BaseImproveSDK {
 	#visitor: Visitor | undefined
