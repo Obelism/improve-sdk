@@ -38,7 +38,9 @@ const SOCIAL_BROWSERS: ReadonlyArray<string> = [
 	'Baidu',
 ]
 
-const formatBrowser = (browserName: string): AudienceParamBrowser => {
+const formatBrowser = (browserName: string = ''): AudienceParamBrowser => {
+	if (!browserName) return 'other'
+
 	const name = browserName.toLowerCase()
 
 	const browserTypeMatch = AUDIENCE_PARAMS.browser.find((browserType) => {
@@ -61,7 +63,9 @@ const formatPointer = (device: AudienceParamDevice) => {
 	return PRIMARY_TOUCH_DEVICES.includes(device) ? 'coarse' : 'fine'
 }
 
-const formatOs = (osName: string): AudienceParamOs => {
+const formatOs = (osName: string = ''): AudienceParamOs => {
+	if (!osName) return 'unix'
+
 	const os = osName.toLowerCase()
 
 	const osTypeMatch = AUDIENCE_PARAMS.os.find((osType) => {
