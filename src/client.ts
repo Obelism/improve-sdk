@@ -63,34 +63,34 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		return this.#visitorId
 	}
 
-	getFeatureValue = (featureSlug: string) => {
+	getFlagValue = (flagSlug: string) => {
 		if (!this.config) return null
 
-		const featureConfig = this.config.features[featureSlug]
+		const flagConfig = this.config.flags[flagSlug]
 
-		if (!featureConfig) return null
+		if (!flagConfig) return null
 
 		if (!this.#visitor) this.setupVisitor()
-		if (!this.#visitorId || !this.#visitor) return featureConfig.options[0].slug
-		if (this.#visitor?.[featureSlug]) return this.#visitor[featureSlug]
+		if (!this.#visitorId || !this.#visitor) return flagConfig.options[0].slug
+		if (this.#visitor?.[flagSlug]) return this.#visitor[flagSlug]
 
 		const visitorMatchesAudience = getVisitorMatchesAudience(
-			this.config.audience[featureConfig.audience],
+			this.config.audience[flagConfig.audience],
 			this.#visitor,
 		)
 
-		if (!visitorMatchesAudience) return featureConfig.options[0].slug
+		if (!visitorMatchesAudience) return flagConfig.options[0].slug
 
-		const featureValue =
-			getCookie(featureSlug) || getRandomTestValue(featureConfig.options)
+		const flagValue =
+			getCookie(flagSlug) || getRandomTestValue(flagConfig.options)
 
-		if (!featureValue) return null
+		if (!flagValue) return null
 
-		this.#visitor[featureSlug] = featureValue
+		this.#visitor[flagSlug] = flagValue
 
-		setCookie(featureSlug, featureValue)
+		setCookie(flagSlug, flagValue)
 
-		return featureValue
+		return flagValue
 	}
 
 	getTestValue = (testSlug: string) => {

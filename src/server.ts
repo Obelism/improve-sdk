@@ -14,23 +14,18 @@ type Visitors = {
 export class ImproveServerSDK extends BaseImproveSDK {
 	#visitors: Visitors = {}
 
-	getFeatureConfig = (featureSlug: string) =>
-		this.config?.features?.[featureSlug]
+	getFlagConfig = (flagSlug: string) => this.config?.flags?.[flagSlug]
 
 	getTestConfig = (testSlug: string) => this.config?.tests?.[testSlug]
 
-	getFeatureValue = (
-		featureSlug: string,
-		visitorId: string,
-		userAgent: string,
-	) => {
-		const featureConfig = this.getFeatureConfig(featureSlug)
+	getFlagValue = (flagSlug: string, visitorId: string, userAgent: string) => {
+		const flagConfig = this.getFlagConfig(flagSlug)
 
-		if (!featureConfig || !this.config) return null
-		if (!visitorId) return featureConfig.options[0].slug
+		if (!flagConfig || !this.config) return null
+		if (!visitorId) return flagConfig.options[0].slug
 
-		if (this.#visitors?.[visitorId]?.[userAgent]?.[featureSlug]) {
-			return this.#visitors[visitorId][userAgent][featureSlug]
+		if (this.#visitors?.[visitorId]?.[userAgent]?.[flagSlug]) {
+			return this.#visitors[visitorId][userAgent][flagSlug]
 		}
 
 		this.#visitors[visitorId] = this.#visitors[visitorId] || {}
@@ -38,18 +33,18 @@ export class ImproveServerSDK extends BaseImproveSDK {
 			this.#visitors[visitorId][userAgent] || parseUserAgent(userAgent)
 
 		const visitorMatchesAudience = getVisitorMatchesAudience(
-			this.config.audience[featureConfig.audience],
+			this.config.audience[flagConfig.audience],
 			this.#visitors[visitorId][userAgent],
 		)
 
-		if (!visitorMatchesAudience) return featureConfig.options[0].slug
+		if (!visitorMatchesAudience) return flagConfig.options[0].slug
 
-		const featureValue = getRandomTestValue(featureConfig.options)
+		const flagValue = getRandomTestValue(flagConfig.options)
 
-		if (!featureValue) return null
+		if (!flagValue) return null
 
-		this.#visitors[visitorId][userAgent][featureSlug] = featureValue
-		return featureValue
+		this.#visitors[visitorId][userAgent][flagSlug] = flagValue
+		return flagValue
 	}
 
 	getTestValue = (testSlug: string, visitorId: string, userAgent: string) => {

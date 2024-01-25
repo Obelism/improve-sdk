@@ -11,7 +11,7 @@ export type ImproveArgs = {
 
 export type TestState = 'draft' | 'active' | 'finished' | 'archived'
 
-export type FeatureOption = {
+export type FlagOption = {
 	name: string
 	slug: string
 	value: string | undefined
@@ -25,15 +25,15 @@ export type TestOption = {
 	split: number
 }
 
-export type Feature = {
+export type Flag = {
 	id: string
 	name: string
 	audience: string
-	options: FeatureOption[]
+	options: FlagOption[]
 }
 
-export type Features = {
-	[featureSlug in string]: Feature
+export type Flags = {
+	[flagSlug in string]: Flag
 }
 
 export type Events = {
@@ -77,7 +77,7 @@ export type Audience = {
 export type Configuration = {
 	name: string
 	version: number
-	features: Features
+	flags: Flags
 	tests: Tests
 	audience: Audience
 }
