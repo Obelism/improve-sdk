@@ -2,8 +2,6 @@ import { ParsedUserAgent, parseUserAgent } from './utils/parseUserAgent'
 import { getVisitorMatchesAudience } from './utils/getVisitorMatchesAudience'
 import { getRandomTestValue } from './utils/getRandomTestValue'
 import { BaseImproveSDK } from './base'
-import { getRandomString } from './utils/getRandomString'
-import { COOKIE_NAME_VISITOR } from './config/constants'
 
 type Visitors = {
 	[visitorId: string]: {
@@ -16,14 +14,10 @@ type Visitors = {
 export class ImproveServerSDK extends BaseImproveSDK {
 	#visitors: Visitors = {}
 
-	generateVisitorId = () => `visi_${getRandomString(26).toUpperCase()}`
-
 	getFeatureConfig = (featureSlug: string) =>
 		this.config?.features?.[featureSlug]
 
 	getTestConfig = (testSlug: string) => this.config?.tests?.[testSlug]
-
-	getVisitorCookieName = () => COOKIE_NAME_VISITOR
 
 	getFeatureValue = (
 		featureSlug: string,

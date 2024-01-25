@@ -1,5 +1,7 @@
+import { COOKIE_NAME_VISITOR } from './config/constants'
 import { CONFIG_URL } from './config/urls'
 import { Configuration, EnvironmentOption, ImproveArgs } from './types'
+import { getRandomString } from './utils/getRandomString'
 import { timeoutFetch } from './utils/timeoutFetch'
 
 type ConfigFetch = {
@@ -29,7 +31,7 @@ export class BaseImproveSDK {
 		} else {
 			this.#configFetch = {
 				url: [CONFIG_URL, organizationId, environment].join('/'),
-				timeout: fetchTimeout || 0,
+				timeout: fetchTimeout || 3000,
 			} as ConfigFetch
 		}
 	}
@@ -43,7 +45,7 @@ export class BaseImproveSDK {
 		}
 
 		const res = await timeoutFetch(
-			this.#configFetch.timeout || 3000,
+			this.#configFetch.timeout,
 			this.#configFetch.url,
 		)
 		if (!res) {
@@ -52,4 +54,8 @@ export class BaseImproveSDK {
 		}
 		this.config = await res.json()
 	}
+
+	generateVisitorId = () => `visi_${getRandomString(26).toUpperCase()}`
+
+	getVisitorCookieName = () => COOKIE_NAME_VISITOR
 }

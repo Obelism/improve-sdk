@@ -2,12 +2,10 @@ import { ParsedUserAgent, parseUserAgent } from './utils/parseUserAgent'
 import { getVisitorMatchesAudience } from './utils/getVisitorMatchesAudience'
 import { getRandomTestValue } from './utils/getRandomTestValue'
 import { BaseImproveSDK } from './base'
-import { getRandomString } from './utils/getRandomString'
 import { getCookie, setCookie } from './utils/clientCookie'
 import { ANALYTICS_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
 import { EnvironmentOption } from './types'
-import { COOKIE_NAME_VISITOR } from './config/constants'
 
 type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
@@ -46,12 +44,13 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 	#analytics: TrackedAnalytics = {}
 
-	setupVisitor = (userAgent: string) => {
-		const cookieVisitorId = getCookie(COOKIE_NAME_VISITOR)
+	#analyticsUrl = ANALYTICS_URL
+
+	setupVisitor = (userAgent: string = window.navigator.userAgent) => {
+		const cookieVisitorId = getCookie(this.getVisitorCookieName())
 		this.#visitorRecurring = Boolean(cookieVisitorId)
 
-		this.#visitorId =
-			cookieVisitorId || `visi_${getRandomString(26).toUpperCase()}`
+		this.#visitorId = cookieVisitorId || this.generateVisitorId()
 
 		const parsedUserAgent = parseUserAgent(userAgent)
 
@@ -59,7 +58,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		this.#visitor = parsedUserAgent
 
-		setCookie(COOKIE_NAME_VISITOR, this.#visitorId)
+		setCookie(this.getVisitorCookieName(), this.#visitorId)
 
 		return this.#visitorId
 	}
@@ -71,6 +70,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		if (!featureConfig) return null
 
+		if (!this.#visitor) this.setupVisitor()
 		if (!this.#visitorId || !this.#visitor) return featureConfig.options[0].slug
 		if (this.#visitor?.[featureSlug]) return this.#visitor[featureSlug]
 
@@ -99,6 +99,8 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		const testConfig = this.config.tests[testSlug]
 
 		if (!testConfig) return null
+
+		if (!this.#visitor) this.setupVisitor()
 
 		if (!this.#visitorId || !this.#visitor) return testConfig.defaultValue
 		if (this.#visitor?.[testSlug]) return this.#visitor[testSlug]
@@ -130,11 +132,16 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		return testValue
 	}
 
+	setAnalyticsUrls = (url: string) => {
+		this.#analyticsUrl = url
+	}
+
 	postAnalytic = (testSlug: string, event: string, message?: string) => {
 		if (!this.config) return null
 
 		const testConfig = this.config.tests[testSlug]
 
+		if (!this.#visitor) this.setupVisitor()
 		if (!testConfig || !this.#visitor || this.#analytics?.[testSlug]?.[event])
 			return null
 		this.#analytics[testSlug] = this.#analytics[testSlug] || {}
@@ -159,7 +166,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			message: message || '',
 		}
 
-		fetch(ANALYTICS_URL, {
+		return fetch(this.#analyticsUrl, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body),
