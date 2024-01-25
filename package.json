@@ -1,9 +1,19 @@
 {
-	"name": "obelism-improve-sdk",
-	"version": "0.0.1",
+	"name": "@obelism/improve-sdk",
 	"description": "Obelism Improve SDK",
-	"author": "",
-	"license": "ISC",
+	"version": "0.0.1",
+	"keywords": [
+		"ab-tests",
+		"feature-flags",
+		"typescript",
+		"improve"
+	],
+	"license": "MIT",
+	"author": "Obelism <hello@obelism.studio> (https://www.obelism.studio)",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Obelism/improve-sdk"
+	},
 	"main": "./src/server.ts",
 	"files": [
 		"dist"
@@ -43,7 +53,7 @@
 	"lint-staged": {
 		"*": "prettier --write --ignore-unknown"
 	},
-	"dependencies": {
+	"peerDependencies": {
 		"ua-parser-js": "^1.0.37"
 	},
 	"devDependencies": {
