@@ -15,9 +15,9 @@ export type CreateAnalytic = {
 	organizationId: string
 	environment: EnvironmentOption
 
-	test_id: string
-	test_value: string
-	visitor_id: string
+	testId: string
+	testValue: string
+	visitorId: string
 
 	pointer: string
 	device: string
@@ -153,9 +153,9 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			organizationId: this.organizationId,
 			environment: this.environment,
 
-			test_id: testConfig.id,
-			test_value: this.#visitor[testSlug],
-			visitor_id: this.#visitorId,
+			testId: testConfig.id,
+			testValue: this.#visitor[testSlug],
+			visitorId: this.#visitorId,
 			pointer: this.#visitor.pointer,
 			device: this.#visitor.device,
 			screen: getScreenSize(),
