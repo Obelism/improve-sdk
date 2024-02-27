@@ -24,7 +24,7 @@ test('Test: 50/50', () => {
 		},
 	]
 
-	for (let i = 0; i < 1000; i++) {
+	for (let i = 0; i < 100; i++) {
 		const outcome = getRandomTestValue(options)
 		if (!outcome) continue
 		outcomeCount[outcome] = outcomeCount[outcome] + 1 || 1

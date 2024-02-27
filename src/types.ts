@@ -5,6 +5,7 @@ export type EnvironmentOption = 'develop' | 'staging' | 'production'
 export type ImproveArgs = {
 	organizationId: string
 	environment: EnvironmentOption
+	state?: TestState
 	config?: Configuration
 	fetchTimeout?: number
 }

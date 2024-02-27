@@ -1,6 +1,11 @@
 import { COOKIE_NAME_VISITOR } from './config/constants'
 import { CONFIG_URL } from './config/urls'
-import { Configuration, EnvironmentOption, ImproveArgs } from './types'
+import {
+	Configuration,
+	EnvironmentOption,
+	ImproveArgs,
+	TestState,
+} from './types'
 import { getRandomString } from './utils/getRandomString'
 import { timeoutFetch } from './utils/timeoutFetch'
 
@@ -20,17 +25,19 @@ export class BaseImproveSDK {
 	constructor({
 		organizationId,
 		environment,
+		state,
 		config,
 		fetchTimeout,
 	}: ImproveArgs) {
 		this.organizationId = organizationId
 		this.environment = environment
+		const configState: TestState = state || 'active'
 
 		if (config) {
 			this.config = config
 		} else {
 			this.#configFetch = {
-				url: [CONFIG_URL, organizationId, environment].join('/'),
+				url: [CONFIG_URL, organizationId, environment, configState].join('/'),
 				timeout: fetchTimeout || 3000,
 			} as ConfigFetch
 		}
