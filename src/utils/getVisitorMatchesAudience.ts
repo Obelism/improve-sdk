@@ -1,9 +1,9 @@
-import { AudienceValue } from '../types'
+import { ImproveAudienceValue } from '../types'
 import { AudienceParamKey } from '../config/audiences'
 import { ParsedUserAgent } from './parseUserAgent'
 
 export const getVisitorMatchesAudience = (
-	audience: AudienceValue,
+	audience: ImproveAudienceValue,
 	visitorParams: ParsedUserAgent,
 ) => {
 	if (!audience) return true

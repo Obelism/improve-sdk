@@ -1,49 +1,49 @@
 import { AudienceParamKey } from 'config/audiences'
 
-export type EnvironmentOption = 'develop' | 'staging' | 'production'
+export type ImproveEnvironmentOption = 'develop' | 'staging' | 'production'
 
-export type ImproveArgs = {
+export type ImproveTestState = 'draft' | 'active' | 'finished' | 'archived'
+
+export type ImproveSetupArgs = {
 	organizationId: string
-	environment: EnvironmentOption
-	state?: TestState
-	config?: Configuration
+	environment: ImproveEnvironmentOption
+	state?: ImproveTestState
+	config?: ImproveConfiguration
 	fetchTimeout?: number
 }
 
-export type TestState = 'draft' | 'active' | 'finished' | 'archived'
-
-export type FlagOption = {
+export type ImproveFlagOption = {
 	name: string
 	slug: string
 	value: string | undefined
 	split: number
 }
 
-export type TestOption = {
+export type ImproveTestOption = {
 	name: string
 	slug: string
 	value: string | undefined
 	split: number
 }
 
-export type Flag = {
+export type ImproveFlag = {
 	id: string
 	name: string
 	audience: string
-	options: FlagOption[]
+	options: ImproveFlagOption[]
 }
 
-export type Flags = {
-	[flagSlug in string]: Flag
+export type ImproveFlags = {
+	[flagSlug in string]: ImproveFlag
 }
 
-export type Events = {
+export type ImproveEvents = {
 	start: string
 	metrics: string[]
 	conversion: string
 }
 
-export type Result = {
+export type ImproveResult = {
 	result: {
 		[variant: string]: {
 			[metric: string]: number
@@ -55,30 +55,30 @@ export type Result = {
 	}[]
 }
 
-export type Test = {
+export type ImproveTest = {
 	id: string
 	name: string
 	defaultValue: string
 	audience: string
 	allocation: number
-	options: TestOption[]
-	events: Events
+	options: ImproveTestOption[]
+	events: ImproveEvents
 }
 
-export type Tests = {
-	[testSlug in string]: Test
+export type ImproveTests = {
+	[testSlug in string]: ImproveTest
 }
 
-export type AudienceValue = { [Key in AudienceParamKey]: string }
+export type ImproveAudienceValue = { [Key in AudienceParamKey]: string }
 
-export type Audience = {
-	[audienceSlug in string]: AudienceValue
+export type ImproveAudience = {
+	[audienceSlug in string]: ImproveAudienceValue
 }
 
-export type Configuration = {
+export type ImproveConfiguration = {
 	name: string
 	version: number
-	flags: Flags
-	tests: Tests
-	audience: Audience
+	flags: ImproveFlags
+	tests: ImproveTests
+	audience: ImproveAudience
 }

@@ -1,10 +1,10 @@
 import { COOKIE_NAME_VISITOR } from './config/constants'
 import { CONFIG_URL } from './config/urls'
 import {
-	Configuration,
-	EnvironmentOption,
-	ImproveArgs,
-	TestState,
+	ImproveConfiguration,
+	ImproveEnvironmentOption,
+	ImproveSetupArgs,
+	ImproveTestState,
 } from './types'
 import { getRandomString } from './utils/getRandomString'
 import { timeoutFetch } from './utils/timeoutFetch'
@@ -16,11 +16,11 @@ type ConfigFetch = {
 
 export class BaseImproveSDK {
 	organizationId = ''
-	environment: EnvironmentOption = 'develop'
+	environment: ImproveEnvironmentOption = 'develop'
 
 	#configFetch: ConfigFetch | null = null
 
-	config: Configuration | null = null
+	config: ImproveConfiguration | null = null
 
 	constructor({
 		organizationId,
@@ -28,10 +28,10 @@ export class BaseImproveSDK {
 		state,
 		config,
 		fetchTimeout,
-	}: ImproveArgs) {
+	}: ImproveSetupArgs) {
 		this.organizationId = organizationId
 		this.environment = environment
-		const configState: TestState = state || 'active'
+		const configState: ImproveTestState = state || 'active'
 
 		if (config) {
 			this.config = config
@@ -46,23 +46,37 @@ export class BaseImproveSDK {
 	fetchConfig = async () => {
 		if (this.config) return
 
-		if (!this.#configFetch) {
-			console.log('No config fetch setup provided')
-			return
-		}
+		if (!this.#configFetch) throw new Error('No config fetch setup provided')
 
 		const res = await timeoutFetch(
 			this.#configFetch.timeout,
 			this.#configFetch.url,
 		)
-		if (!res) {
-			console.log('Configuration fetch timed-out')
-			return
-		}
+		if (!res) throw new Error('Configuration fetch timed-out')
+
 		this.config = await res.json()
+	}
+
+	loadConfig = (config: ImproveConfiguration) => {
+		this.config = config
 	}
 
 	generateVisitorId = () => `visi_${getRandomString(26).toUpperCase()}`
 
 	getVisitorCookieName = () => COOKIE_NAME_VISITOR
+
+	validateTestValue = (testName: string, testValue: string) => {
+		if (!this.config)
+			throw new Error(
+				'Config is required before validating, either use `.fetchConfig()`, .loadConfig(config) or provide it during setup',
+			)
+
+		const testConfig = this.config.tests[testName]
+
+		if (!testConfig) throw new Error(`No config found for ${testName}`)
+
+		return Boolean(
+			testConfig.options.find((option) => option.slug === testValue),
+		)
+	}
 }

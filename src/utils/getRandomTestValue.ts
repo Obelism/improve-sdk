@@ -1,10 +1,10 @@
-import { TestOption } from '../types'
+import { ImproveTestOption } from '../types'
 
 // function cryptoRandom() {
 // 	return crypto.getRandomValues(new Uint32Array(1))[0] / (0xffffffff + 1)
 // }
 
-export const getRandomTestValue = (options: TestOption[]) => {
+export const getRandomTestValue = (options: ImproveTestOption[]) => {
 	if (options.length === 0) return null
 	if (options.length === 1) return options[0].slug
 

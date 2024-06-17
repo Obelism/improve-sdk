@@ -5,7 +5,7 @@ import { BaseImproveSDK } from './base'
 import { getCookie, setCookie } from './utils/clientCookie'
 import { ANALYTICS_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
-import { EnvironmentOption } from './types'
+import { ImproveEnvironmentOption } from './types'
 
 type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
@@ -13,7 +13,7 @@ type Visitor = ParsedUserAgent & {
 
 export type CreateAnalytic = {
 	organizationId: string
-	environment: EnvironmentOption
+	environment: ImproveEnvironmentOption
 
 	testId: string
 	testValue: string
