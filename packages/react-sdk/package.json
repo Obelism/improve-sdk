@@ -1,0 +1,64 @@
+{
+	"name": "@obelism/improve-sdk-react",
+	"description": "Obelism Improve React SDK",
+	"version": "0.0.4",
+	"keywords": [
+		"ab-tests",
+		"feature-flags",
+		"typescript",
+		"improve",
+		"react"
+	],
+	"license": "MIT",
+	"author": "Obelism <hello@obelism.studio> (https://www.obelism.studio)",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Obelism/improve-sdk-react"
+	},
+	"files": [
+		"dist"
+	],
+	"exports": {
+		"import": {
+			"types": "./dist/index.d.mts",
+			"default": "./dist/index.mjs"
+		},
+		"require": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "bunchee -m",
+		"dev": "bunchee --watch --no-clean",
+		"test": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"test:ci": "vitest run",
+		"lint": "npm-run-all --parallel lint:*",
+		"lint:fix": "eslint --fix",
+		"lint:types": "tsc --noEmit",
+		"prettier": "prettier --write --ignore-unknown .",
+		"prettier:check": "prettier --check --ignore-unknown .",
+		"clean": "rm -rf ./node_modules && rm -rf ./dist && rm -rf ./.turbo"
+	},
+	"devDependencies": {
+		"@obelism/improve-sdk-eslint-config": "^0.0.0",
+		"@obelism/improve-sdk-typescript-config": "^0.0.0",
+		"@types/react": "^18.3.3",
+		"@types/ua-parser-js": "^0.7.39",
+		"@typescript-eslint/eslint-plugin": "^6.15.0",
+		"bunchee": "^5.3.1",
+		"eslint": "^8.56.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-no-relative-import-paths": "^1.5.3",
+		"eslint-plugin-simple-import-sort": "^12.1.1",
+		"npm-run-all": "^4.1.5",
+		"prettier": "^3.1.1",
+		"typescript": "^5.3.3",
+		"vitest": "^2.0.5"
+	},
+	"peerDependencies": {
+		"@obelism/improve-sdk": "^0.0.4",
+		"react": "^18.2.0"
+	}
+}

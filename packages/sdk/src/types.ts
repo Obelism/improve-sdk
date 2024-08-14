@@ -1,4 +1,4 @@
-import { AudienceParamKey } from 'config/audiences'
+import { AudienceParamKey } from './config/audiences'
 
 export type ImproveEnvironmentOption = 'develop' | 'staging' | 'production'
 

@@ -3,7 +3,7 @@ import { AudienceParamKey } from '../config/audiences'
 import { ParsedUserAgent } from './parseUserAgent'
 
 export const getVisitorMatchesAudience = (
-	audience: ImproveAudienceValue,
+	audience: ImproveAudienceValue | undefined,
 	visitorParams: ParsedUserAgent,
 ) => {
 	if (!audience) return true

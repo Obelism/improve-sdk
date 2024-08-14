@@ -10,7 +10,7 @@ import { delay } from './delay'
 export const getTimeoutError = async (
 	timeout: number = 1000,
 	controller: AbortController,
-) => {
+): Promise<null> => {
 	await delay(timeout)
 	controller?.abort()
 	return null

@@ -2,12 +2,13 @@ import { expect, test } from 'vitest'
 
 import { ImproveServerSDK } from './server'
 import { diff } from './utils/diff'
+import { ImproveConfiguration } from './types'
 
 type CountObject = {
 	[x: string]: number
 }
 
-const TEST_CONFIG = {
+const TEST_CONFIG: ImproveConfiguration = {
 	name: 'nextjs-example',
 	version: 1,
 	flags: {},
@@ -58,7 +59,7 @@ test('1000 times getTestValue with new visitor ids', () => {
 	for (let i = 0; i < iterations; i++) {
 		const outcome = improveSDK.getTestValue('startpage-visual', `visi_${i}`, UA)
 		if (!outcome) continue
-		outcomeCount[outcome] = outcomeCount[outcome] + 1 || 1
+		outcomeCount[outcome] = (outcomeCount[outcome] || 0) + 1
 	}
 
 	const delta = diff(...(Object.values(outcomeCount) as [number, number]))
@@ -80,13 +81,13 @@ test('200 runs with 100 different visitor IDS', () => {
 	for (let i = 0; i < iterations; i++) {
 		const outcome = improveSDK.getTestValue('startpage-visual', `visi_${i}`, UA)
 		if (!outcome) continue
-		outcomeCount[outcome] = outcomeCount[outcome] + 1 || 1
+		outcomeCount[outcome] = (outcomeCount[outcome] || 0) + 1
 	}
 
 	for (let i = 0; i < iterations; i++) {
 		const outcome = improveSDK.getTestValue('startpage-visual', `visi_${i}`, UA)
 		if (!outcome) continue
-		secondRunCount[outcome] = secondRunCount[outcome] + 1 || 1
+		secondRunCount[outcome] = (secondRunCount[outcome] || 0) + 1
 	}
 
 	expect(outcomeCount).toStrictEqual(secondRunCount)

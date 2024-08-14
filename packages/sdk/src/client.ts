@@ -68,7 +68,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		const flagConfig = this.config.flags[flagSlug]
 
-		if (!flagConfig) return null
+		if (!flagConfig || !flagConfig.options[0]) return null
 
 		if (!this.#visitor) this.setupVisitor()
 		if (!this.#visitorId || !this.#visitor) return flagConfig.options[0].slug
@@ -142,19 +142,27 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		const testConfig = this.config.tests[testSlug]
 
 		if (!this.#visitor) this.setupVisitor()
-		if (!testConfig || !this.#visitor || this.#analytics?.[testSlug]?.[event])
+		if (!testConfig || !this.#visitor || this.#analytics?.[testSlug]?.[event]) {
 			return null
-		this.#analytics[testSlug] = this.#analytics[testSlug] || {}
-		this.#analytics[testSlug][event] = true
+		}
 
-		if (!this.#visitor?.[testSlug]) this.getTestValue(testSlug)
+		const testSlugAnalytics = this.#analytics[testSlug] || {}
+		testSlugAnalytics[event] = true
+		this.#analytics[testSlug] = testSlugAnalytics
+
+		let testValue = this.#visitor?.[testSlug] || null
+		if (!testValue) {
+			testValue = this.getTestValue(testSlug) || null
+		}
+
+		if (!testValue) return
 
 		const body: CreateAnalytic = {
 			organizationId: this.organizationId,
 			environment: this.environment,
 
 			testId: testConfig.id,
-			testValue: this.#visitor[testSlug],
+			testValue: testValue,
 			visitorId: this.#visitorId,
 			pointer: this.#visitor.pointer,
 			device: this.#visitor.device,

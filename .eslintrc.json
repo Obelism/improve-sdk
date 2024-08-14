@@ -1,8 +1,0 @@
-{
-	"extends": ["prettier", "plugin:@typescript-eslint/recommended"],
-	"plugins": ["no-relative-import-paths", "simple-import-sort"],
-	"rules": {
-		"@typescript-eslint/no-explicit-any": "off",
-		"@typescript-eslint/consistent-type-definitions": ["error", "type"]
-	}
-}

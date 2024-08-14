@@ -21,7 +21,6 @@ test('20 char size', () => {
 })
 
 test('Null', () => {
-	// @ts-expect-error Testing invalid input
 	const outcome = getRandomString(null)
 	expect(typeof outcome).toBe('string')
 	expect(outcome.length).toBe(0)

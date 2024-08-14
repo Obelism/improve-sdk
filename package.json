@@ -1,51 +1,21 @@
 {
-	"name": "@obelism/improve-sdk",
-	"description": "Obelism Improve SDK",
-	"version": "0.0.4",
-	"keywords": [
-		"ab-tests",
-		"feature-flags",
-		"typescript",
-		"improve"
-	],
-	"license": "MIT",
-	"author": "Obelism <hello@obelism.studio> (https://www.obelism.studio)",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Obelism/improve-sdk"
-	},
-	"main": "./src/server.ts",
-	"files": [
-		"dist"
-	],
-	"exports": {
-		"./server": {
-			"types": "./dist/server.d.ts",
-			"import": "./dist/server.js",
-			"require": "./dist/server.cjs"
-		},
-		"./client": {
-			"types": "./dist/client.d.ts",
-			"import": "./dist/client.js",
-			"require": "./dist/client.cjs"
-		},
-		"./types": {
-			"types": "./dist/types.d.ts"
-		}
-	},
+	"name": "@obelism/improve",
+	"private": true,
 	"scripts": {
-		"build": "bunchee -m",
-		"dev": "bunchee --watch",
-		"test": "vitest",
-		"test:coverage": "vitest run --coverage",
-		"test:ci": "vitest run",
-		"lint": "eslint",
-		"lint:fix": "eslint --fix",
-		"lint:types": "tsc --noEmit",
+		"build": "turbo build",
+		"dev": "turbo dev",
+		"lint": "turbo lint",
+		"test": "turbo run test",
+		"test:ci": "turbo run test:ci",
 		"lint-staged": "lint-staged",
-		"prettier": "prettier --write --ignore-unknown .",
-		"prettier:check": "prettier --check --ignore-unknown .",
-		"clean": "rm -rf node_modules && rm -rf .next"
+		"clean": "turbo run clean",
+		"format": "prettier --write --ignore-unknown ."
+	},
+	"devDependencies": {
+		"lint-staged": "^15.2.9",
+		"prettier": "^3.3.3",
+		"turbo": "^2.0.12",
+		"typescript": "^5.4.5"
 	},
 	"git": {
 		"pre-commit": "lint-staged"
@@ -53,20 +23,14 @@
 	"lint-staged": {
 		"*": "prettier --write --ignore-unknown"
 	},
-	"peerDependencies": {
-		"ua-parser-js": "^1.0.37"
+	"engines": {
+		"node": ">=18"
 	},
-	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^6.15.0",
-		"@vercel/git-hooks": "^1.0.0",
-		"bunchee": "^4.2.0",
-		"eslint": "^8.56.0",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-no-relative-import-paths": "^1.5.3",
-		"eslint-plugin-simple-import-sort": "^10.0.0",
-		"lint-staged": "^15.2.0",
-		"prettier": "^3.1.1",
-		"typescript": "^5.3.3",
-		"vitest": "^1.1.0"
+	"packageManager": "npm@10.7.0",
+	"workspaces": [
+		"packages/*"
+	],
+	"dependencies": {
+		"@vercel/git-hooks": "^1.0.0"
 	}
 }
