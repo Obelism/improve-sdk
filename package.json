@@ -1,5 +1,6 @@
 {
 	"name": "@obelism/improve",
+	"version": "0.0.4",
 	"private": true,
 	"scripts": {
 		"build": "turbo build",
@@ -9,9 +10,11 @@
 		"test:ci": "turbo run test:ci",
 		"lint-staged": "lint-staged",
 		"clean": "turbo run clean",
-		"format": "prettier --write --ignore-unknown ."
+		"format": "prettier --write --ignore-unknown .",
+		"publish-packages": "turbo run build lint test && changeset version && changeset publish"
 	},
 	"devDependencies": {
+		"changeset": "^0.2.6",
 		"lint-staged": "^15.2.9",
 		"prettier": "^3.3.3",
 		"turbo": "^2.0.12",
@@ -31,6 +34,7 @@
 		"packages/*"
 	],
 	"dependencies": {
+		"@changesets/cli": "^2.27.7",
 		"@vercel/git-hooks": "^1.0.0"
 	}
 }
