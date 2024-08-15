@@ -3,7 +3,7 @@ name: NPM Publish
 on:
   push:
     branches:
-      - feature/monorepo
+      - main
 
 jobs:
   npm-publish:
