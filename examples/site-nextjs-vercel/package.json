@@ -1,0 +1,27 @@
+{
+	"name": "site-nextjs-vercel",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"dependencies": {
+		"@obelism/improve-sdk-next": "^0.1.1",
+		"@obelism/improve-sdk-react": "^0.1.1",
+		"@vercel/edge-config": "^1.2.1",
+		"next": "^14.2.5",
+		"react": "^18",
+		"react-dom": "^18"
+	},
+	"devDependencies": {
+		"@types/node": "^22.4.0",
+		"@types/react": "^18",
+		"@types/react-dom": "^18",
+		"eslint": "^8",
+		"eslint-config-next": "^14.2.5",
+		"typescript": "^5"
+	}
+}
