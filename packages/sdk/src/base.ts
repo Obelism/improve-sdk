@@ -1,4 +1,9 @@
-import { COOKIE_NAME_VISITOR } from './config/constants'
+import {
+	COOKIE_NAME_VISITOR,
+	VISITOR_ID_LENGTH,
+	VISITOR_ID_PREFIX,
+	VISITOR_ID_SEPARATOR,
+} from './config/constants'
 import { CONFIG_URL } from './config/urls'
 import {
 	ImproveConfiguration,
@@ -62,7 +67,12 @@ export class BaseImproveSDK {
 		this.config = config
 	}
 
-	generateVisitorId = () => `visi_${getRandomString(26).toUpperCase()}`
+	generateVisitorId = () => {
+		return [
+			VISITOR_ID_PREFIX,
+			getRandomString(VISITOR_ID_LENGTH).toUpperCase(),
+		].join(VISITOR_ID_SEPARATOR)
+	}
 
 	getVisitorCookieName = () => COOKIE_NAME_VISITOR
 
@@ -79,5 +89,12 @@ export class BaseImproveSDK {
 		return Boolean(
 			testConfig.options.find((option) => option.slug === testValue),
 		)
+	}
+
+	validateVisitorId = (possibleVisitorId: string) => {
+		const visitorIdParts = possibleVisitorId.split(VISITOR_ID_SEPARATOR)
+		if (visitorIdParts.length !== 2) return false
+		const [key, value] = visitorIdParts as [string, string]
+		return key === VISITOR_ID_PREFIX && value.length === VISITOR_ID_LENGTH
 	}
 }

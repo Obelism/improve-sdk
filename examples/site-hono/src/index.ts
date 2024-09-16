@@ -18,14 +18,19 @@ app.get('/', async (c) => {
 
 	//? Get values from cookie for a consistent browsing experience for users
 	const visitorCookieName = improveSdk.getVisitorCookieName()
-	const visitorId =
-		getCookie(c, visitorCookieName) || improveSdk.generateVisitorId()
+	const visitorIdCookie = getCookie(c, visitorCookieName)
 	const testCookieValue = getCookie(c, AB_TEST_SLUG)
 
-	//? Validate if the cookie value is valid
+	//? Validate if the cookie values are valid
+	const validCookieVisitorId =
+		visitorIdCookie && improveSdk.validateVisitorId(visitorIdCookie)
 	const validCookieValue =
 		testCookieValue &&
 		improveSdk.validateTestValue(AB_TEST_SLUG, testCookieValue)
+
+	const visitorId = validCookieVisitorId
+		? visitorIdCookie
+		: improveSdk.generateVisitorId()
 
 	const testValue = validCookieValue
 		? testCookieValue

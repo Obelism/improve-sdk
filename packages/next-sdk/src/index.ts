@@ -5,6 +5,7 @@ import { NextResponse, userAgent } from 'next/server'
 
 import { extendedBotCheck } from './extendedBotCheck'
 import { matchesRoute } from './matchesRoute'
+import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 
 export type OptionConfig = { value: string; slug: string }
 
@@ -18,12 +19,20 @@ export type ServerABTestConfig = {
 export const generateImproveNextMiddleware = (args: {
 	improveSdk: ImproveServerSDK
 	serverABtests: ServerABTestConfig[]
+	options?: {
+		visitorId?: ResponseCookie
+		testValue?: ResponseCookie
+	}
 }) => {
 	return (request: NextRequest) => {
 		const visitorCookieName = args.improveSdk.getVisitorCookieName()
-		const visitorId =
-			request.cookies.get(visitorCookieName)?.value ||
-			args.improveSdk.generateVisitorId()
+
+		const cookieVisitorId = request.cookies.get(visitorCookieName)?.value
+		const validCookieVisitorId =
+			cookieVisitorId && args.improveSdk.validateVisitorId(cookieVisitorId)
+		const visitorId = validCookieVisitorId
+			? cookieVisitorId
+			: args.improveSdk.generateVisitorId()
 
 		const { ua = '', isBot = false } = userAgent(request)
 
@@ -74,8 +83,14 @@ export const generateImproveNextMiddleware = (args: {
 
 		const response = NextResponse.next()
 
-		response.cookies.set(visitorCookieName, visitorId)
-		if (testValue) response.cookies.set(serverABTestConfig.slug, testValue)
+		response.cookies.set(visitorCookieName, visitorId, {
+			maxAge: 60 * 60 * 24 * 7,
+			...args.options?.visitorId,
+		})
+		response.cookies.set(serverABTestConfig.slug, testValue, {
+			maxAge: 60 * 60 * 24 * 7,
+			...args.options?.testValue,
+		})
 
 		return response
 	}

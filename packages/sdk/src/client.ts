@@ -48,9 +48,13 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 	setupVisitor = (userAgent: string = window.navigator.userAgent) => {
 		const cookieVisitorId = getCookie(this.getVisitorCookieName())
-		this.#visitorRecurring = Boolean(cookieVisitorId)
+		const validCookieVisitorId =
+			cookieVisitorId && this.validateVisitorId(cookieVisitorId)
 
-		this.#visitorId = cookieVisitorId || this.generateVisitorId()
+		this.#visitorRecurring = validCookieVisitorId
+		this.#visitorId = validCookieVisitorId
+			? cookieVisitorId
+			: this.generateVisitorId()
 
 		const parsedUserAgent = parseUserAgent(userAgent)
 
@@ -120,8 +124,12 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			return this.#visitor?.[testSlug]
 		}
 
-		const testValue =
-			getCookie(testSlug) || getRandomTestValue(testConfig.options)
+		const cookieTestValue = getCookie(testSlug)
+		const validCookieTestValue =
+			cookieTestValue && this.validateTestValue(testSlug, cookieTestValue)
+		const testValue = validCookieTestValue
+			? cookieTestValue
+			: getRandomTestValue(testConfig.options)
 
 		if (!testValue) return null
 
