@@ -12,6 +12,7 @@
 		"lint-staged": "lint-staged",
 		"clean": "turbo run clean",
 		"format": "prettier --write --ignore-unknown .",
+		"changeset": "changeset",
 		"version": "changeset version",
 		"publish-packages": "turbo run build && turbo run lint test && changeset publish"
 	},

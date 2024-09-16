@@ -1,5 +1,7 @@
 {
 	"name": "site-hono",
+	"version": "1.0.0",
+	"private": true,
 	"scripts": {
 		"dev": "tsx watch src/index.ts"
 	},

@@ -2,6 +2,7 @@
 	"name": "site-react",
 	"version": "1.0.0",
 	"main": "index.js",
+	"private": true,
 	"scripts": {
 		"dev": "tsup src/index.tsx --watch",
 		"build": "tsup src/index.tsx",
