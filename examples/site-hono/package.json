@@ -1,13 +1,13 @@
 {
 	"name": "site-hono",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"private": true,
 	"scripts": {
 		"dev": "tsx watch src/index.ts"
 	},
 	"dependencies": {
 		"@hono/node-server": "^1.13.0",
-		"@obelism/improve-sdk": "^0.1.1",
+		"@obelism/improve-sdk": "^0.2.0",
 		"hono": "^4.6.1"
 	},
 	"devDependencies": {
