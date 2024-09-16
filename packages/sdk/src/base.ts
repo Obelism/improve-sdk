@@ -43,7 +43,7 @@ export class BaseImproveSDK {
 		}
 	}
 
-	fetchConfig = async () => {
+	fetchConfig = async (config?: RequestInit) => {
 		if (this.config) return
 
 		if (!this.#configFetch) throw new Error('No config fetch setup provided')
@@ -51,8 +51,9 @@ export class BaseImproveSDK {
 		const res = await timeoutFetch(
 			this.#configFetch.timeout,
 			this.#configFetch.url,
+			config,
 		)
-		if (!res) throw new Error('Configuration fetch timed-out')
+		if (!res || !res.ok) throw new Error('Configuration fetch timed-out')
 
 		this.config = await res.json()
 	}

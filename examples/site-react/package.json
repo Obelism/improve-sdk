@@ -4,7 +4,8 @@
 	"main": "index.js",
 	"scripts": {
 		"dev": "tsup src/index.tsx --watch",
-		"build": "tsup src/index.tsx"
+		"build": "tsup src/index.tsx",
+		"clean": "rm -rf node_modules && rm -rf dist && rm -rf .turbo"
 	},
 	"author": "",
 	"license": "ISC",
