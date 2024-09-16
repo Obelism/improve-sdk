@@ -58,7 +58,7 @@
 		"vitest": "^2.0.5"
 	},
 	"dependencies": {
-		"@obelism/improve-sdk": "^0.1.1",
-		"@obelism/improve-sdk-react": "^0.1.1"
+		"@obelism/improve-sdk": "^0.2.0",
+		"@obelism/improve-sdk-react": "^0.2.0"
 	}
 }
