@@ -1,6 +1,6 @@
 {
 	"name": "site-nextjs-vercel",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"private": true,
 	"scripts": {
 		"dev": "next dev  -p 3002",
@@ -10,7 +10,6 @@
 		"clean": "rm -rf node_modules && rm -rf .next && rm -rf .turbo"
 	},
 	"dependencies": {
-		"@obelism/improve-sdk": "^0.2.0",
 		"@obelism/improve-sdk-next": "^0.2.0",
 		"@obelism/improve-sdk-react": "^0.2.0",
 		"@vercel/edge-config": "^1.2.1",
