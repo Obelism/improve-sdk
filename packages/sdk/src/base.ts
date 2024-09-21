@@ -48,7 +48,7 @@ export class BaseImproveSDK {
 		}
 	}
 
-	fetchConfig = async (config?: RequestInit) => {
+	_fetchConfig = async (config?: RequestInit) => {
 		if (this.config) return
 
 		if (!this.#configFetch) throw new Error('No config fetch setup provided')

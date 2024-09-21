@@ -46,6 +46,8 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 	#analyticsUrl = ANALYTICS_URL
 
+	fetchConfig = this._fetchConfig
+
 	setupVisitor = (userAgent: string = window.navigator.userAgent) => {
 		const cookieVisitorId = getCookie(this.getVisitorCookieName())
 		const validCookieVisitorId =

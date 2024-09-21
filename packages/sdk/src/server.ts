@@ -2,6 +2,7 @@ import { ParsedUserAgent, parseUserAgent } from './utils/parseUserAgent'
 import { getVisitorMatchesAudience } from './utils/getVisitorMatchesAudience'
 import { getRandomTestValue } from './utils/getRandomTestValue'
 import { BaseImproveSDK } from './base'
+import { ImproveSetupArgs } from './types'
 
 type Visitors = {
 	[visitorId: string]: {
@@ -11,8 +12,28 @@ type Visitors = {
 	}
 }
 
+type ImproveServerSetupArgs = ImproveSetupArgs & {
+	token: string
+}
+
 export class ImproveServerSDK extends BaseImproveSDK {
 	#visitors: Visitors = {}
+	#token: string
+
+	constructor({ token, ...args }: ImproveServerSetupArgs) {
+		super(args)
+		this.#token = token
+	}
+
+	fetchConfig = async (config?: RequestInit) => {
+		return this._fetchConfig({
+			...config,
+			headers: {
+				...config?.headers,
+				token: this.#token,
+			},
+		})
+	}
 
 	getFlagConfig = (flagSlug: string) => this.config?.flags?.[flagSlug]
 

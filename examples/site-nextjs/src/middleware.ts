@@ -8,7 +8,10 @@ export const config = {
 	matcher: '/',
 }
 
-const improveSdk = new ImproveServerSDK(IMPROVE_CONFIG)
+const improveSdk = new ImproveServerSDK({
+	...IMPROVE_CONFIG,
+	token: 'bumhUt-7rycke-jabvix',
+})
 
 const improveMiddlewareHandler = generateImproveNextMiddleware({
 	improveSdk,
