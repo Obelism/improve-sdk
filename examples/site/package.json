@@ -1,6 +1,6 @@
 {
 	"name": "site",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"main": "index.js",
 	"private": true,
 	"scripts": {
@@ -21,6 +21,6 @@
 		"typescript": "^5.6.2"
 	},
 	"dependencies": {
-		"@obelism/improve-sdk": "^0.2.0"
+		"@obelism/improve-sdk": "^0.3.0"
 	}
 }

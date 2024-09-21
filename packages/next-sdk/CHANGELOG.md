@@ -1,5 +1,17 @@
 # @obelism/improve-sdk-next
 
+## 0.3.0
+
+### Minor Changes
+
+- 3f0304b: API Authentication setup
+
+### Patch Changes
+
+- Updated dependencies [3f0304b]
+  - @obelism/improve-sdk-react@0.3.0
+  - @obelism/improve-sdk@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes

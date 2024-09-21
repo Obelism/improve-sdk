@@ -1,5 +1,11 @@
 # @obelism/improve-sdk
 
+## 0.3.0
+
+### Minor Changes
+
+- 3f0304b: API Authentication setup
+
 ## 0.2.0
 
 ### Minor Changes
