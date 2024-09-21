@@ -2,7 +2,7 @@ import { ParsedUserAgent, parseUserAgent } from './utils/parseUserAgent'
 import { getVisitorMatchesAudience } from './utils/getVisitorMatchesAudience'
 import { getRandomTestValue } from './utils/getRandomTestValue'
 import { BaseImproveSDK } from './base'
-import { ImproveSetupArgs } from './types'
+import { ImproveConfiguration, ImproveSetupArgs } from './types'
 
 type Visitors = {
 	[visitorId: string]: {
@@ -12,14 +12,19 @@ type Visitors = {
 	}
 }
 
-type ImproveServerSetupArgs = ImproveSetupArgs & {
-	token: string
-}
+type ImproveServerSetupArgs =
+	| (Omit<ImproveSetupArgs, 'config'> & {
+			config: ImproveConfiguration
+	  })
+	| (Omit<ImproveSetupArgs, 'config'> & {
+			token: string
+	  })
 
 export class ImproveServerSDK extends BaseImproveSDK {
 	#visitors: Visitors = {}
 	#token: string
 
+	// @ts-ignore It could be there
 	constructor({ token, ...args }: ImproveServerSetupArgs) {
 		super(args)
 		this.#token = token
