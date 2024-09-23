@@ -20,8 +20,9 @@ type ConfigFetch = {
 }
 
 export class BaseImproveSDK {
-	organizationId = ''
+	organizationId: string
 	environment: ImproveEnvironmentOption = 'develop'
+	state: ImproveTestState
 
 	#configFetch: ConfigFetch | null = null
 
@@ -39,9 +40,8 @@ export class BaseImproveSDK {
 	}: ImproveSetupArgs) {
 		this.organizationId = organizationId
 		this.environment = environment
+		this.state = state
 		this._baseUrl = baseUrl || BASE_URL
-
-		const configState: ImproveTestState = state || 'active'
 
 		if (config) {
 			this.config = config
@@ -49,12 +49,12 @@ export class BaseImproveSDK {
 			this.#configFetch = {
 				url: [
 					`${this._baseUrl}${CONFIG_PATH}`,
-					organizationId,
-					environment,
-					configState,
+					this.organizationId,
+					this.environment,
+					this.state || 'active',
 				].join('/'),
 				timeout: fetchTimeout || 3000,
-			} as ConfigFetch
+			}
 		}
 	}
 
@@ -71,6 +71,7 @@ export class BaseImproveSDK {
 		if (!res || !res.ok) throw new Error('Configuration fetch timed-out')
 
 		this.config = await res.json()
+		return this.config
 	}
 
 	loadConfig = (config: ImproveConfiguration) => {
