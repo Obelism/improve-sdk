@@ -1,5 +1,11 @@
 # @obelism/improve-sdk
 
+## 0.3.2
+
+### Patch Changes
+
+- ba40757: Return fetched config & expose org/env/state
+
 ## 0.3.1
 
 ### Patch Changes
