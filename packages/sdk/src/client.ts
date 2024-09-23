@@ -5,8 +5,7 @@ import { BaseImproveSDK } from './base'
 import { getCookie, setCookie } from './utils/clientCookie'
 import { ANALYTICS_PATH, BASE_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
-import { ImproveEnvironmentOption } from './types'
-import { ImproveSetupArgs } from '../dist/types'
+import { ImproveEnvironmentOption, ImproveSetupArgs } from './types'
 
 type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
