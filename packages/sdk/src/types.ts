@@ -9,6 +9,7 @@ export type ImproveSetupArgs = {
 	environment: ImproveEnvironmentOption
 	state?: ImproveTestState
 	config?: ImproveConfiguration
+	baseUrl?: string
 	fetchTimeout?: number
 }
 

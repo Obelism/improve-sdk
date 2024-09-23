@@ -3,9 +3,10 @@ import { getVisitorMatchesAudience } from './utils/getVisitorMatchesAudience'
 import { getRandomTestValue } from './utils/getRandomTestValue'
 import { BaseImproveSDK } from './base'
 import { getCookie, setCookie } from './utils/clientCookie'
-import { ANALYTICS_URL } from './config/urls'
+import { ANALYTICS_PATH, BASE_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
 import { ImproveEnvironmentOption } from './types'
+import { ImproveSetupArgs } from '../dist/types'
 
 type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
@@ -44,9 +45,14 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 	#analytics: TrackedAnalytics = {}
 
-	#analyticsUrl = ANALYTICS_URL
+	#analyticsUrl = `${BASE_URL}${ANALYTICS_PATH}`
 
 	fetchConfig = this._fetchConfig
+
+	constructor(args: ImproveSetupArgs) {
+		super(args)
+		this.#analyticsUrl = `${this._baseUrl}${ANALYTICS_PATH}`
+	}
 
 	setupVisitor = (userAgent: string = window.navigator.userAgent) => {
 		const cookieVisitorId = getCookie(this.getVisitorCookieName())

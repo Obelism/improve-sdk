@@ -13,7 +13,7 @@ type Visitors = {
 }
 
 type ImproveServerSetupArgs =
-	| (Omit<ImproveSetupArgs, 'config'> & {
+	| (Omit<ImproveSetupArgs, 'config' | 'baseUrl'> & {
 			config: ImproveConfiguration
 	  })
 	| (Omit<ImproveSetupArgs, 'config'> & {

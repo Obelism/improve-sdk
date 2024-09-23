@@ -4,7 +4,7 @@ import {
 	VISITOR_ID_PREFIX,
 	VISITOR_ID_SEPARATOR,
 } from './config/constants'
-import { CONFIG_URL } from './config/urls'
+import { CONFIG_PATH, BASE_URL } from './config/urls'
 import {
 	ImproveConfiguration,
 	ImproveEnvironmentOption,
@@ -27,22 +27,32 @@ export class BaseImproveSDK {
 
 	config: ImproveConfiguration | null = null
 
+	_baseUrl: undefined | string
+
 	constructor({
 		organizationId,
 		environment,
 		state,
 		config,
 		fetchTimeout,
+		baseUrl,
 	}: ImproveSetupArgs) {
 		this.organizationId = organizationId
 		this.environment = environment
+		this._baseUrl = baseUrl || BASE_URL
+
 		const configState: ImproveTestState = state || 'active'
 
 		if (config) {
 			this.config = config
 		} else {
 			this.#configFetch = {
-				url: [CONFIG_URL, organizationId, environment, configState].join('/'),
+				url: [
+					`${this._baseUrl}${CONFIG_PATH}`,
+					organizationId,
+					environment,
+					configState,
+				].join('/'),
 				timeout: fetchTimeout || 3000,
 			} as ConfigFetch
 		}
