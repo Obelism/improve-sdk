@@ -1,5 +1,13 @@
 # @obelism/improve-sdk-react
 
+## 0.3.1
+
+### Patch Changes
+
+- 189c9b5: Allow baseUrl passing
+- Updated dependencies [189c9b5]
+  - @obelism/improve-sdk@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes
