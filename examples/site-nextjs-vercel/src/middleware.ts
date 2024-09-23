@@ -12,7 +12,7 @@ export const config = {
 
 const improveSdk = new ImproveServerSDK({
 	...IMPROVE_CONFIG,
-	token: 'bumhUt-7rycke-jabvix',
+	token: 'd7yhgB-VDusnE-i2eWml-ThPDPf',
 })
 
 const improveMiddlewareHandler = generateImproveNextMiddleware({

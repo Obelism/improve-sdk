@@ -8,7 +8,7 @@ const app = new Hono()
 const improveSdk = new ImproveServerSDK({
 	organizationId: 'org_MJFL46Z0WXGQ5OHW1ZXSM3Q88S',
 	environment: 'staging',
-	token: 'bumhUt-7rycke-jabvix',
+	token: 'd7yhgB-VDusnE-i2eWml-ThPDPf',
 })
 
 const AB_TEST_SLUG = 'startpage-visual'

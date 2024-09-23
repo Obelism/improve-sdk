@@ -1,6 +1,6 @@
-import { type NextRequest } from 'next/server'
 import { ImproveServerSDK } from '@obelism/improve-sdk/server'
 import { generateImproveNextMiddleware } from '@obelism/improve-sdk-next'
+import { type NextRequest } from 'next/server'
 
 import { IMPROVE_CONFIG } from './app/improveConfig'
 
@@ -10,7 +10,7 @@ export const config = {
 
 const improveSdk = new ImproveServerSDK({
 	...IMPROVE_CONFIG,
-	token: 'bumhUt-7rycke-jabvix',
+	token: 'd7yhgB-VDusnE-i2eWml-ThPDPf',
 })
 
 const improveMiddlewareHandler = generateImproveNextMiddleware({
