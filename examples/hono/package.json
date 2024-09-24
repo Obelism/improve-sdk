@@ -1,5 +1,5 @@
 {
-	"name": "site-hono",
+	"name": "example-hono",
 	"version": "1.0.2",
 	"private": true,
 	"scripts": {
