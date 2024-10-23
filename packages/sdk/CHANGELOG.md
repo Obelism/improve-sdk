@@ -1,5 +1,11 @@
 # @obelism/improve-sdk
 
+## 0.3.3
+
+### Patch Changes
+
+- 6cd624f: Dependencies bump
+
 ## 0.3.2
 
 ### Patch Changes
