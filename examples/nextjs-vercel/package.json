@@ -13,7 +13,7 @@
 		"@obelism/improve-sdk-next": "^0.3.0",
 		"@obelism/improve-sdk-react": "^0.3.0",
 		"@vercel/edge-config": "^1.2.1",
-		"next": "^14.2.5",
+		"next": "^15.0.1",
 		"react": "^18",
 		"react-dom": "^18"
 	},
@@ -22,7 +22,7 @@
 		"@types/react": "^18",
 		"@types/react-dom": "^18",
 		"eslint": "^8",
-		"eslint-config-next": "^14.2.5",
+		"eslint-config-next": "^15.0.1",
 		"typescript": "^5"
 	}
 }
