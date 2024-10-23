@@ -41,8 +41,8 @@
 		"clean": "rm -rf ./node_modules && rm -rf ./dist && rm -rf ./.turbo"
 	},
 	"peerDependencies": {
-		"next": "^14.2.4",
-		"react": "^18.2.0"
+		"next": ">=14.0.0",
+		"react": ">=18.0.0"
 	},
 	"devDependencies": {
 		"@obelism/improve-sdk-eslint-config": "^0.0.0",
