@@ -1,5 +1,14 @@
 # @obelism/improve-sdk-next
 
+## 0.3.3
+
+### Patch Changes
+
+- 6cd624f: Dependencies bump
+- Updated dependencies [6cd624f]
+  - @obelism/improve-sdk-react@0.3.3
+  - @obelism/improve-sdk@0.3.3
+
 ## 0.3.2
 
 ### Patch Changes
