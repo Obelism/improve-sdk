@@ -1,5 +1,11 @@
 # @obelism/improve-sdk
 
+## 0.3.4
+
+### Patch Changes
+
+- 906f987: Build fix
+
 ## 0.3.3
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @obelism/improve-sdk-next
 
+## 0.3.4
+
+### Patch Changes
+
+- 906f987: Build fix
+- Updated dependencies [906f987]
+  - @obelism/improve-sdk-react@0.3.4
+  - @obelism/improve-sdk@0.3.4
+
 ## 0.3.3
 
 ### Patch Changes
