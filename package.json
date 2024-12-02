@@ -14,7 +14,8 @@
 		"format": "prettier --write --ignore-unknown .",
 		"changeset": "changeset",
 		"version": "changeset version",
-		"publish-packages": "turbo run build && turbo run lint test && changeset publish"
+		"publish-packages": "turbo run build && turbo run lint test && changeset publish",
+		"workspace:list": "npm query .workspace | jq -r '.[].location'"
 	},
 	"devDependencies": {
 		"changeset": "^0.2.6",
