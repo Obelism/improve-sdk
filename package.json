@@ -38,7 +38,7 @@
 		"examples/*"
 	],
 	"dependencies": {
-		"@changesets/cli": "^2.27.7",
+		"@changesets/cli": "^2.27.10",
 		"@obelism/improve-sdk": "^0.1.1",
 		"@obelism/improve-sdk-next": "^0.1.1",
 		"@obelism/improve-sdk-react": "^0.1.1",
