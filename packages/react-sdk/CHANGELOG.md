@@ -1,5 +1,13 @@
 # @obelism/improve-sdk-react
 
+## 0.3.5
+
+### Patch Changes
+
+- e16b7e1: 📦 - Modules bump
+- Updated dependencies [e16b7e1]
+  - @obelism/improve-sdk@0.3.5
+
 ## 0.3.4
 
 ### Patch Changes

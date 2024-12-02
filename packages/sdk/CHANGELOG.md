@@ -1,5 +1,11 @@
 # @obelism/improve-sdk
 
+## 0.3.5
+
+### Patch Changes
+
+- e16b7e1: 📦 - Modules bump
+
 ## 0.3.4
 
 ### Patch Changes
