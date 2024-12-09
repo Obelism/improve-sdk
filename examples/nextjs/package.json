@@ -13,7 +13,7 @@
 		"@obelism/improve-sdk-next": "^0.3.0",
 		"@obelism/improve-sdk-react": "^0.3.0",
 		"example-nextjs-vercel": "^1.0.2",
-		"next": "^15.0.1",
+		"next": "^15.0.4",
 		"react": "^18",
 		"react-dom": "^18"
 	},
