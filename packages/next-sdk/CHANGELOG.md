@@ -1,5 +1,14 @@
 # @obelism/improve-sdk-next
 
+## 0.3.6
+
+### Patch Changes
+
+- f1bcf15: Allow React 19
+- Updated dependencies [f1bcf15]
+  - @obelism/improve-sdk-react@0.3.6
+  - @obelism/improve-sdk@0.3.6
+
 ## 0.3.5
 
 ### Patch Changes

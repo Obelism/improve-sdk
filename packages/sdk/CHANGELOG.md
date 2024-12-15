@@ -1,5 +1,11 @@
 # @obelism/improve-sdk
 
+## 0.3.6
+
+### Patch Changes
+
+- f1bcf15: Allow React 19
+
 ## 0.3.5
 
 ### Patch Changes
