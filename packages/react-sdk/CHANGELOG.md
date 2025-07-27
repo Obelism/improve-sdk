@@ -1,5 +1,11 @@
 # @obelism/improve-sdk-react
 
+## 0.4.0
+
+### Minor Changes
+
+- df8f091: Setup Improve status hook
+
 ## 0.3.6
 
 ### Patch Changes
