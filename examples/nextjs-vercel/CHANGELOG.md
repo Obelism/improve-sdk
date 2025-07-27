@@ -1,5 +1,13 @@
 # site-nextjs-vercel
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [df8f091]
+  - @obelism/improve-sdk-react@0.4.0
+  - @obelism/improve-sdk-next@0.4.0
+
 ## 1.0.2
 
 ### Patch Changes

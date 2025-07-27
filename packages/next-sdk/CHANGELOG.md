@@ -1,5 +1,16 @@
 # @obelism/improve-sdk-next
 
+## 0.4.0
+
+### Minor Changes
+
+- df8f091: Setup Improve status hook
+
+### Patch Changes
+
+- Updated dependencies [df8f091]
+  - @obelism/improve-sdk-react@0.4.0
+
 ## 0.3.6
 
 ### Patch Changes
