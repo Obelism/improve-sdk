@@ -10,8 +10,7 @@ export const HomePage = ({ variant }: { variant: 'control' | 'variation' }) => {
 
 			<div className={styles.description}>
 				<p>
-					Get started by editing&nbsp;
-					<code className={styles.code}>src/app/page.tsx</code>
+					Variation: <code className={styles.code}>{variant}</code>
 				</p>
 				<div>
 					<a

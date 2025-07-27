@@ -1,11 +1,11 @@
 import { ImproveServerSDK } from '@obelism/improve-sdk/server'
-import { NextURL } from 'next/dist/server/web/next-url'
+import type { NextURL } from 'next/dist/server/web/next-url'
 import type { NextRequest } from 'next/server'
 import { NextResponse, userAgent } from 'next/server'
 
 import { extendedBotCheck } from './extendedBotCheck'
 import { matchesRoute } from './matchesRoute'
-import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
+import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 
 const DEFAULT_COOKIE_TTL = 60 * 60 * 24 * 7
 
@@ -27,8 +27,10 @@ export type GenerateImproveNextMiddlewareArgs = {
 	}
 }
 
-export const generateImproveNextMiddleware =
-	(args: GenerateImproveNextMiddlewareArgs) => (request: NextRequest) => {
+export const generateImproveNextMiddleware = (
+	args: GenerateImproveNextMiddlewareArgs,
+) => {
+	return (request: NextRequest) => {
 		// Early esacape for bots that shouldn't be getting AB tested
 		const { ua = '', isBot = false } = userAgent(request)
 		if (isBot || extendedBotCheck(ua)) return NextResponse.next()
@@ -98,3 +100,4 @@ export const generateImproveNextMiddleware =
 
 		return response
 	}
+}
