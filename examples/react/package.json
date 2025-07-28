@@ -16,7 +16,7 @@
 		"@obelism/improve-sdk-react": "^0.4.0",
 		"@types/react": "^19.0.1",
 		"react": "^19.0.0",
-		"react-dom": "^19.0.0"
+		"react-dom": "^19.1.1"
 	},
 	"devDependencies": {
 		"@obelism/improve-sdk-eslint-config": "^0.0.0",
