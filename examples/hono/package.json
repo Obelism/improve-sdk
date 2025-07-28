@@ -3,15 +3,15 @@
 	"version": "1.0.2",
 	"private": true,
 	"scripts": {
-		"dev": "tsx watch src/index.ts"
+		"start": "vercel dev",
+		"deploy": "vercel"
 	},
 	"dependencies": {
-		"@hono/node-server": "^1.13.0",
 		"@obelism/improve-sdk": "^0.3.0",
 		"hono": "^4.6.1"
 	},
 	"devDependencies": {
 		"@types/node": "^22.5.5",
-		"tsx": "^4.7.1"
+		"vercel": "^44.6.3"
 	}
 }
