@@ -55,7 +55,7 @@
 		"eslint-plugin-no-relative-import-paths": "^1.5.3",
 		"eslint-plugin-simple-import-sort": "^12.1.1",
 		"typescript": "^5.3.3",
-		"vitest": "^2.0.5"
+		"vitest": "^3.2.4"
 	},
 	"dependencies": {
 		"@obelism/improve-sdk": "^0.3.6",
