@@ -44,27 +44,24 @@ export const generateImproveProvider = (improveSetupArgs: ImproveSetupArgs) => {
 			let loaded = false
 			let aborted = false
 
-			try {
-				import('@obelism/improve-sdk/client').then(
-					async ({ ImproveClientSDK }) => {
-						if (aborted) return
-						improveSdkRef.current = new ImproveClientSDK(improveSetupArgs)
+			import('@obelism/improve-sdk/client')
+				.then(async ({ ImproveClientSDK }) => {
+					if (aborted) return
+					improveSdkRef.current = new ImproveClientSDK(improveSetupArgs)
 
-						if (!improveSetupArgs.config) {
-							await improveSdkRef.current.fetchConfig()
-						}
+					if (!improveSetupArgs.config) {
+						await improveSdkRef.current.fetchConfig()
+					}
 
-						if (aborted) return
-						loaded = true
-						setStatus('setup')
-					},
-				)
-			} catch (e) {
-				loadingSdk.current = false
-				console.error(e)
-				setStatus('error')
-				return
-			}
+					if (aborted) return
+					loaded = true
+					setStatus('setup')
+				})
+				.catch((e) => {
+					loadingSdk.current = false
+					console.error(e)
+					setStatus('error')
+				})
 
 			return () => {
 				if (loaded) return

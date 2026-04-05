@@ -12,6 +12,6 @@ export const getCookie = (name: string) => {
 
 export const setCookie = (name: string, value: string) => {
 	const now = new Date()
-	now.setMonth(now.getMonth() + 1)
-	document.cookie = `${name}=${value};path=/;expires=${now.toUTCString()}`
+	now.setDate(now.getDate() + 30)
+	document.cookie = `${name}=${value};path=/;expires=${now.toUTCString()};SameSite=Lax;Secure`
 }

@@ -14,7 +14,7 @@
 		"type": "git",
 		"url": "https://github.com/Obelism/improve-sdk"
 	},
-	"main": "./src/server.ts",
+	"sideEffects": false,
 	"files": [
 		"dist"
 	],

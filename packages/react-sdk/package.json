@@ -15,6 +15,7 @@
 		"type": "git",
 		"url": "https://github.com/Obelism/improve-sdk-react"
 	},
+	"sideEffects": false,
 	"files": [
 		"dist"
 	],

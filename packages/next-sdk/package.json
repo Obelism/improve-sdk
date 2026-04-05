@@ -16,6 +16,7 @@
 		"type": "git",
 		"url": "https://github.com/Obelism/improve-sdk-next"
 	},
+	"sideEffects": false,
 	"files": [
 		"dist"
 	],
@@ -58,7 +59,6 @@
 		"vitest": "^2.0.5"
 	},
 	"dependencies": {
-		"@obelism/improve-sdk": "^0.3.6",
-		"@obelism/improve-sdk-react": "^0.4.0"
+		"@obelism/improve-sdk": "^0.3.6"
 	}
 }

@@ -31,73 +31,89 @@ export const generateImproveNextMiddleware = (
 	args: GenerateImproveNextMiddlewareArgs,
 ) => {
 	return (request: NextRequest) => {
-		// Early esacape for bots that shouldn't be getting AB tested
-		const { ua = '', isBot = false } = userAgent(request)
-		if (isBot || extendedBotCheck(ua)) return NextResponse.next()
+		try {
+			// Early esacape for bots that shouldn't be getting AB tested
+			const { ua = '', isBot = false } = userAgent(request)
+			if (isBot || extendedBotCheck(ua)) return NextResponse.next()
 
-		// When there is no (valid) server AB config escape
-		const serverABTestConfig = args.serverABtests.find((route) =>
-			matchesRoute(route.routeHandler, request.nextUrl.pathname),
-		)
-		if (!serverABTestConfig) return NextResponse.next()
+			// When there is no (valid) server AB config escape
+			const serverABTestConfig = args.serverABtests.find((route) =>
+				matchesRoute(route.routeHandler, request.nextUrl.pathname),
+			)
+			if (!serverABTestConfig) return NextResponse.next()
 
-		const basePath = serverABTestConfig.options.at(0)?.value
+			const basePath = serverABTestConfig.options.at(0)?.value
 
-		if (!basePath) return NextResponse.next()
+			if (!basePath) return NextResponse.next()
 
-		const visitorCookieName = args.improveSdk.getVisitorCookieName()
-		const cookieVisitorId = request.cookies.get(visitorCookieName)?.value
-		const validCookieVisitorId =
-			cookieVisitorId && args.improveSdk.validateVisitorId(cookieVisitorId)
-		const visitorId = validCookieVisitorId
-			? cookieVisitorId
-			: args.improveSdk.generateVisitorId()
+			const visitorCookieName = args.improveSdk.getVisitorCookieName()
+			const cookieVisitorId = request.cookies.get(visitorCookieName)?.value
+			const validCookieVisitorId =
+				cookieVisitorId &&
+				args.improveSdk.validateVisitorId(cookieVisitorId)
+			const visitorId = validCookieVisitorId
+				? cookieVisitorId
+				: args.improveSdk.generateVisitorId()
 
-		const validateValue = (value: string | null | undefined) => {
-			return value &&
-				args.improveSdk.validateTestValue(serverABTestConfig.slug, value)
-				? value
-				: null
+			const validateValue = (value: string | null | undefined) => {
+				return value &&
+					args.improveSdk.validateTestValue(
+						serverABTestConfig.slug,
+						value,
+					)
+					? value
+					: null
+			}
+
+			// Get AB test value from: searchParam, cookies or get generate a new value
+			const testValue =
+				validateValue(
+					request.nextUrl.searchParams.get(serverABTestConfig.slug),
+				) ||
+				validateValue(
+					request.cookies.get(serverABTestConfig.slug)?.value,
+				) ||
+				args.improveSdk.getTestValue(
+					serverABTestConfig.slug,
+					visitorId,
+					ua,
+				)
+
+			const testMatchOption = serverABTestConfig.options.find(
+				(option) => option.value === testValue,
+			)
+
+			if (!testMatchOption) return NextResponse.next()
+
+			// Update the response with cookies response
+			let response: undefined | NextResponse<unknown>
+
+			if (testMatchOption.value !== basePath) {
+				const url = request.nextUrl.clone()
+
+				url.pathname = serverABTestConfig?.formatSlug
+					? serverABTestConfig?.formatSlug(url, testMatchOption)
+							?.pathname
+					: testMatchOption.slug
+
+				response = NextResponse.rewrite(url)
+			} else {
+				response = NextResponse.next()
+			}
+
+			response.cookies.set(visitorCookieName, visitorId, {
+				maxAge: DEFAULT_COOKIE_TTL,
+				...args.options?.visitorId,
+			})
+			response.cookies.set(serverABTestConfig.slug, testValue, {
+				maxAge: DEFAULT_COOKIE_TTL,
+				...args.options?.testValue,
+			})
+
+			return response
+		} catch (e) {
+			console.error('[Improve SDK]', e)
+			return NextResponse.next()
 		}
-
-		// Get AB test value from: searchParam, cookies or get generate a new value
-		const testValue =
-			validateValue(
-				request.nextUrl.searchParams.get(serverABTestConfig.slug),
-			) ||
-			validateValue(request.cookies.get(serverABTestConfig.slug)?.value) ||
-			args.improveSdk.getTestValue(serverABTestConfig.slug, visitorId, ua)
-
-		const testMatchOption = serverABTestConfig.options.find(
-			(option) => option.value === testValue,
-		)
-
-		if (!testMatchOption) return NextResponse.next()
-
-		// Update the response with cookies response
-		let response: undefined | NextResponse<unknown>
-
-		if (testMatchOption.value !== basePath) {
-			const url = request.nextUrl.clone()
-
-			url.pathname = serverABTestConfig?.formatSlug
-				? serverABTestConfig?.formatSlug(url, testMatchOption)?.pathname
-				: testMatchOption.slug
-
-			response = NextResponse.rewrite(url)
-		} else {
-			response = NextResponse.next()
-		}
-
-		response.cookies.set(visitorCookieName, visitorId, {
-			maxAge: DEFAULT_COOKIE_TTL,
-			...args.options?.visitorId,
-		})
-		response.cookies.set(serverABTestConfig.slug, testValue, {
-			maxAge: DEFAULT_COOKIE_TTL,
-			...args.options?.testValue,
-		})
-
-		return response
 	}
 }

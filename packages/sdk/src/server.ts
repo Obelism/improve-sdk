@@ -4,30 +4,34 @@ import { getRandomTestValue } from './utils/getRandomTestValue'
 import { BaseImproveSDK } from './base'
 import { ImproveConfiguration, ImproveSetupArgs } from './types'
 
-type Visitors = {
-	[visitorId: string]: {
-		[userAgent: string]: ParsedUserAgent & {
-			[testSlug: string]: string
-		}
+const DEFAULT_MAX_VISITORS = 10_000
+
+type VisitorData = {
+	[userAgent: string]: ParsedUserAgent & {
+		[testSlug: string]: string
 	}
 }
 
 type ImproveServerSetupArgs =
 	| (Omit<ImproveSetupArgs, 'config' | 'baseUrl'> & {
 			config: ImproveConfiguration
+			maxVisitors?: number
 	  })
 	| (Omit<ImproveSetupArgs, 'config'> & {
 			token: string
+			maxVisitors?: number
 	  })
 
 export class ImproveServerSDK extends BaseImproveSDK {
-	#visitors: Visitors = {}
+	#visitors: Map<string, VisitorData> = new Map()
+	#maxVisitors: number
 	#token: string
 
 	// @ts-ignore It could be there
-	constructor({ token, ...args }: ImproveServerSetupArgs) {
+	constructor({ token, maxVisitors, ...args }: ImproveServerSetupArgs) {
 		super(args)
 		this.#token = token
+		this.#maxVisitors = maxVisitors ?? DEFAULT_MAX_VISITORS
 	}
 
 	fetchConfig = async (config?: RequestInit) => {
@@ -44,23 +48,40 @@ export class ImproveServerSDK extends BaseImproveSDK {
 
 	getTestConfig = (testSlug: string) => this.config?.tests?.[testSlug]
 
+	#getVisitor = (visitorId: string, userAgent: string) => {
+		let visitor = this.#visitors.get(visitorId)
+		if (visitor) {
+			// Move to end for LRU freshness
+			this.#visitors.delete(visitorId)
+			this.#visitors.set(visitorId, visitor)
+		} else {
+			// Evict oldest entries when at capacity
+			if (this.#visitors.size >= this.#maxVisitors) {
+				const oldest = this.#visitors.keys().next().value
+				if (oldest) this.#visitors.delete(oldest)
+			}
+			visitor = {}
+			this.#visitors.set(visitorId, visitor)
+		}
+		visitor[userAgent] = visitor[userAgent] || parseUserAgent(userAgent)
+		return visitor
+	}
+
 	getFlagValue = (flagSlug: string, visitorId: string, userAgent: string) => {
 		const flagConfig = this.getFlagConfig(flagSlug)
 
 		if (!flagConfig || !this.config) return null
 		if (!visitorId) return flagConfig.options[0].slug
 
-		if (this.#visitors?.[visitorId]?.[userAgent]?.[flagSlug]) {
-			return this.#visitors[visitorId][userAgent][flagSlug]
-		}
+		const visitor = this.#getVisitor(visitorId, userAgent)
 
-		this.#visitors[visitorId] = this.#visitors[visitorId] || {}
-		this.#visitors[visitorId][userAgent] =
-			this.#visitors[visitorId][userAgent] || parseUserAgent(userAgent)
+		if (visitor[userAgent]?.[flagSlug]) {
+			return visitor[userAgent][flagSlug]
+		}
 
 		const visitorMatchesAudience = getVisitorMatchesAudience(
 			this.config.audience[flagConfig.audience],
-			this.#visitors[visitorId][userAgent],
+			visitor[userAgent],
 		)
 
 		if (!visitorMatchesAudience) return flagConfig.options[0].slug
@@ -69,7 +90,7 @@ export class ImproveServerSDK extends BaseImproveSDK {
 
 		if (!flagValue) return null
 
-		this.#visitors[visitorId][userAgent][flagSlug] = flagValue
+		visitor[userAgent][flagSlug] = flagValue
 		return flagValue
 	}
 
@@ -80,17 +101,15 @@ export class ImproveServerSDK extends BaseImproveSDK {
 
 		if (!visitorId || !userAgent) return testConfig.defaultValue
 
-		if (this.#visitors?.[visitorId]?.[userAgent]?.[testSlug]) {
-			return this.#visitors[visitorId][userAgent][testSlug]
-		}
+		const visitor = this.#getVisitor(visitorId, userAgent)
 
-		this.#visitors[visitorId] = this.#visitors[visitorId] || {}
-		this.#visitors[visitorId][userAgent] =
-			this.#visitors[visitorId][userAgent] || parseUserAgent(userAgent)
+		if (visitor[userAgent]?.[testSlug]) {
+			return visitor[userAgent][testSlug]
+		}
 
 		const visitorMatchesAudience = getVisitorMatchesAudience(
 			this.config.audience[testConfig.audience],
-			this.#visitors[visitorId][userAgent],
+			visitor[userAgent],
 		)
 
 		if (!visitorMatchesAudience) return testConfig.defaultValue
@@ -99,15 +118,15 @@ export class ImproveServerSDK extends BaseImproveSDK {
 			testConfig.allocation < 100 &&
 			Math.random() * 100 > testConfig.allocation
 		) {
-			this.#visitors[visitorId][userAgent][testSlug] = testConfig.defaultValue
-			return this.#visitors[visitorId][userAgent][testSlug]
+			visitor[userAgent][testSlug] = testConfig.defaultValue
+			return visitor[userAgent][testSlug]
 		}
 
 		const testValue = getRandomTestValue(testConfig.options)
 
 		if (!testValue) return null
 
-		this.#visitors[visitorId][userAgent][testSlug] = testValue
+		visitor[userAgent][testSlug] = testValue
 		return testValue
 	}
 }
