@@ -1,5 +1,16 @@
 # @obelism/improve-sdk-react
 
+## 0.5.0
+
+### Minor Changes
+
+- 00319d9: Reliability, Security and performance improvements
+
+### Patch Changes
+
+- Updated dependencies [00319d9]
+  - @obelism/improve-sdk@0.4.0
+
 ## 0.4.0
 
 ### Minor Changes

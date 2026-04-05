@@ -1,5 +1,11 @@
 # @obelism/improve-sdk
 
+## 0.4.0
+
+### Minor Changes
+
+- 00319d9: Reliability, Security and performance improvements
+
 ## 0.3.6
 
 ### Patch Changes
