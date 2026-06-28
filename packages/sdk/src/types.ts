@@ -11,6 +11,12 @@ export type ImproveSetupArgs = {
 	config?: ImproveConfiguration
 	baseUrl?: string
 	fetchTimeout?: number
+	/**
+	 * Mirror analytics onto the GTM dataLayer (window.dataLayer) with experiment
+	 * dimensions, so they can drive Google Tag Manager / Google Ads conversions.
+	 * Enabled by default; set to `false` to opt out. No effect server-side.
+	 */
+	dataLayer?: boolean
 }
 
 export type ImproveFlagOption = {

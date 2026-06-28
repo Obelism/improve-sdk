@@ -5,6 +5,7 @@ import { BaseImproveSDK } from './base'
 import { getCookie, setCookie } from './utils/clientCookie'
 import { ANALYTICS_PATH, BASE_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
+import { pushDataLayer } from './utils/pushDataLayer'
 import { ImproveEnvironmentOption, ImproveSetupArgs } from './types'
 
 type Visitor = ParsedUserAgent & {
@@ -46,11 +47,14 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 	#analyticsUrl = `${BASE_URL}${ANALYTICS_PATH}`
 
+	#dataLayerEnabled: boolean = true
+
 	fetchConfig = this._fetchConfig
 
 	constructor(args: ImproveSetupArgs) {
 		super(args)
 		this.#analyticsUrl = `${this._baseUrl}${ANALYTICS_PATH}`
+		this.#dataLayerEnabled = args.dataLayer ?? true
 	}
 
 	setupVisitor = (userAgent: string = window.navigator.userAgent) => {
@@ -187,6 +191,18 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			visitor: this.#visitorRecurring ? 'recurring' : 'new',
 			event: event,
 			message: message || '',
+		}
+
+		if (this.#dataLayerEnabled) {
+			pushDataLayer({
+				event,
+				improve: {
+					test: testSlug,
+					variant: testValue,
+					visitorId: this.#visitorId,
+				},
+				_improve: true,
+			})
 		}
 
 		return fetch(this.#analyticsUrl, {
