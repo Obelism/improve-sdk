@@ -8,7 +8,7 @@
 			"env": ["EDGE_CONFIG"]
 		},
 		"lint": {
-			"dependsOn": ["^lint"]
+			"dependsOn": ["^build"]
 		},
 		"dev": {
 			"cache": false,
