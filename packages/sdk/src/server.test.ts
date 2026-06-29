@@ -64,7 +64,13 @@ test('1000 times getTestValue with new visitor ids', () => {
 
 	const delta = diff(...(Object.values(outcomeCount) as [number, number]))
 
-	expect(delta).toBeLessThanOrEqual(iterations / 15)
+	// getTestValue assigns each variant with Math.random, so a 50/50 split is
+	// binomially distributed: the delta between the two buckets has a standard
+	// deviation of ~sqrt(iterations). Allow ~5 standard deviations so the test
+	// effectively never flakes while still catching a grossly skewed split.
+	const maxDelta = Math.ceil(Math.sqrt(iterations) * 5)
+
+	expect(delta).toBeLessThanOrEqual(maxDelta)
 })
 
 test('200 runs with 100 different visitor IDS', () => {
