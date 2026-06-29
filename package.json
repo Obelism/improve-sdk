@@ -38,11 +38,6 @@
 		"packages/*",
 		"examples/*"
 	],
-	"overrides": {
-		"@vercel/style-guide": {
-			"typescript": "$typescript"
-		}
-	},
 	"dependencies": {
 		"@changesets/cli": "^2.31.0",
 		"@obelism/improve-sdk": "^0.1.1",

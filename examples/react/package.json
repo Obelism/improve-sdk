@@ -19,12 +19,8 @@
 		"react-dom": "^19.2.7"
 	},
 	"devDependencies": {
-		"@obelism/improve-sdk-eslint-config": "^0.0.0",
 		"@obelism/improve-sdk-typescript-config": "^0.0.0",
 		"@types/react-dom": "^19.2.3",
-		"eslint": "^9.10.0",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-no-relative-import-paths": "^1.6.1",
 		"tsup": "^8.5.1",
 		"typescript": "^6.0.3"
 	}

@@ -1,3 +1,3 @@
-import nextCoreWebVitals from 'eslint-config-next/core-web-vitals'
+import config from '@obelism/improve-sdk-eslint-config'
 
-export default nextCoreWebVitals
+export default config

@@ -50,12 +50,8 @@
 		"@obelism/improve-sdk-eslint-config": "^0.0.0",
 		"@obelism/improve-sdk-typescript-config": "^0.0.0",
 		"@types/react": "^19.2.17",
-		"@typescript-eslint/eslint-plugin": "^8.62.1",
 		"bunchee": "^6.11.0",
-		"eslint": "^8.56.0",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-no-relative-import-paths": "^1.6.1",
-		"eslint-plugin-simple-import-sort": "^12.1.1",
+		"eslint": "^10.6.0",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.9"
 	},
