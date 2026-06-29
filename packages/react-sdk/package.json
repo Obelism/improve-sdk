@@ -1,7 +1,7 @@
 {
 	"name": "@obelism/improve-sdk-react",
 	"description": "Obelism Improve React SDK",
-	"version": "0.5.1",
+	"version": "0.5.2",
 	"keywords": [
 		"ab-tests",
 		"feature-flags",
@@ -58,6 +58,6 @@
 		"react": ">=18.0.0"
 	},
 	"dependencies": {
-		"@obelism/improve-sdk": "^0.5.0"
+		"@obelism/improve-sdk": "^1.0.0"
 	}
 }

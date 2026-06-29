@@ -1,5 +1,13 @@
 # site-react
 
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies [b57320a]
+  - @obelism/improve-sdk@1.0.0
+  - @obelism/improve-sdk-react@0.5.2
+
 ## 1.1.2
 
 ### Patch Changes
