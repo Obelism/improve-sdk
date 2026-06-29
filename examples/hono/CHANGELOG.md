@@ -1,5 +1,12 @@
 # site-hono
 
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies [b57320a]
+  - @obelism/improve-sdk@1.0.0
+
 ## 1.0.4
 
 ### Patch Changes
