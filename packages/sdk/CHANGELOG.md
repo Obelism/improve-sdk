@@ -1,5 +1,11 @@
 # @obelism/improve-sdk
 
+## 0.5.0
+
+### Minor Changes
+
+- fd3d8ac: Add GTM / Google Ads dataLayer integration. The client SDK's `postAnalytic` now mirrors each event onto `window.dataLayer` with experiment dimensions (`improve: { test, variant, visitorId }`, tagged `_improve` for loop prevention), so events can drive Google Tag Manager / Google Ads conversions. Enabled by default; opt out with `dataLayer: false` in the setup args.
+
 ## 0.4.0
 
 ### Minor Changes
