@@ -2,6 +2,7 @@
 	"name": "example-hono",
 	"version": "1.0.4",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"start": "vercel dev",
 		"deploy": "vercel"
