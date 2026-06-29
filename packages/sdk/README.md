@@ -24,6 +24,7 @@ constructor({
 	environment: 'develop' | 'staging' | 'production'
 	config?: Configuration
 	fetchTimeout?: number
+	dataLayer?: boolean
 }) => void
 ```
 
@@ -31,6 +32,7 @@ constructor({
 - **environment** - Application environment, can be one of three values
 - **config** - (optional) Configuration file, this can be either fetched or provided on initialization
 - **fetchTimeout** - (optional) When fetching the config after what amount of ms should it abort, default; 3000ms
+- **dataLayer** - (optional) Mirror analytics onto the GTM `window.dataLayer` (with `improve: { test, variant, visitorId }` dimensions) so they can drive Google Tag Manager / Google Ads conversions. Default; `true`, set to `false` to opt out
 
 ### fetchConfig
 
