@@ -11,17 +11,24 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+      id-token: write # Required for npm Trusted Publishing (OIDC) + provenance
 
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js 20.x
-        uses: actions/setup-node@v3
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 24.x
+          registry-url: https://registry.npmjs.org
+
+      # Trusted Publishing requires npm >= 11.5.1, which is newer than the
+      # version bundled with setup-node.
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: npm install
         run: npm ci
@@ -36,4 +43,3 @@ jobs:
           publish: npm run publish-packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
