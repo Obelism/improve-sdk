@@ -6,14 +6,14 @@
 		"dev": "next dev  -p 3002",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint",
+		"lint": "eslint",
 		"clean": "rm -rf node_modules && rm -rf .next && rm -rf .turbo"
 	},
 	"dependencies": {
 		"@obelism/improve-sdk-next": "^0.5.0",
 		"@obelism/improve-sdk-react": "^0.5.0",
 		"@vercel/edge-config": "^1.4.3",
-		"next": "^15.5.19",
+		"next": "^16.2.9",
 		"react": "^19.2.7",
 		"react-dom": "^19.2.7"
 	},
@@ -21,8 +21,8 @@
 		"@types/node": "^26.0.1",
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
-		"eslint": "^8",
-		"eslint-config-next": "^15.0.1",
-		"typescript": "^5.9.3"
+		"eslint": "^9.39.4",
+		"eslint-config-next": "^16.2.9",
+		"typescript": "^6.0.3"
 	}
 }
