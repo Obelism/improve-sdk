@@ -1,8 +1,6 @@
-import { type NextRequest } from 'next/server'
-import { get as getFromEdgeConfig } from '@vercel/edge-config'
-import { type ImproveConfiguration } from '@obelism/improve-sdk/types'
 import { ImproveServerSDK } from '@obelism/improve-sdk/server'
 import { generateImproveNextMiddleware } from '@obelism/improve-sdk-next'
+import { type NextRequest } from 'next/server'
 
 import { IMPROVE_CONFIG } from './app/improveConfig'
 
@@ -35,19 +33,7 @@ const improveMiddlewareHandler = generateImproveNextMiddleware({
 	],
 })
 
-const getImproveConfig = async () => {
-	if (!!improveSdk.config) return
-
-	// Only the active state is saved in edge config
-	if (IMPROVE_CONFIG.state !== 'active') {
-		return await improveSdk.fetchConfig()
-	}
-
-	const config = await getFromEdgeConfig(IMPROVE_CONFIG.environment)
-	improveSdk.loadConfig(config as ImproveConfiguration)
-}
-
-export const middleware = async (request: NextRequest) => {
-	await getImproveConfig()
+export const proxy = async (request: NextRequest) => {
+	await improveSdk.fetchConfig()
 	return improveMiddlewareHandler(request)
 }

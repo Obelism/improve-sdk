@@ -4,12 +4,12 @@ An A/B testing example using the [Obelism Improve](https://improve.obelism.studi
 SDK with **React Server Components** and Next.js **[Cache Components](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents)**.
 
 Unlike the [`nextjs`](../nextjs) example — which rewrites the URL per variant in
-middleware — this example keeps a **single URL** and resolves the variant
+the proxy — this example keeps a **single URL** and resolves the variant
 **server-side inside a Server Component**.
 
 ## How it works
 
-1. **Middleware** (`src/middleware.ts`) assigns the visitor to a variant and
+1. **Proxy** (`src/proxy.ts`, formerly `middleware.ts`) assigns the visitor to a variant and
    persists it in cookies. It does **not** rewrite the URL; it forwards the
    cookie on the request so the Server Component can read it during the same
    render.

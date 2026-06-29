@@ -15,12 +15,12 @@ const improveSdk = new ImproveServerSDK({
 })
 
 /**
- * Unlike the URL-rewriting `nextjs` example, this middleware never changes the
+ * Unlike the URL-rewriting `nextjs` example, this proxy never changes the
  * route. It only assigns the visitor to a variant and persists it in cookies.
  * The Server Component then reads that cookie and renders the variant inline,
  * keeping a single URL for both variants.
  */
-export const middleware = async (request: NextRequest) => {
+export const proxy = async (request: NextRequest) => {
 	await improveSdk.fetchConfig()
 
 	const { ua = '' } = userAgent(request)
