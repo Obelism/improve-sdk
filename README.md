@@ -11,7 +11,7 @@ The official [Obelism Improve](https://improve.obelism.studio) SDK
 - `react`: a React app using the Improve React SDK; [preview](https://react.improve.obelism.studio)
 - `nextjs`: a NextJS app using the Improve NextJS and React SDK; [preview](https://nextjs.improve.obelism.studio)
 - `nextjs-vercel`: a NextJS app using the Improve NextJS and React SDK and Vercel Edge Storage; [preview](https://nextjs-vercel.improve.obelism.studio)
-- `nextjs-rsc`: a NextJS app resolving the variant in a React Server Component with Cache Components
+- `nextjs-rsc`: a NextJS app resolving the variant in a React Server Component with Cache Components; [preview](https://nextjs-rsc.improve.obelism.studio)
 
 ### Packages
 
