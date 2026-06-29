@@ -12,7 +12,8 @@
 	"author": "Obelism <hello@obelism.studio> (https://www.obelism.studio)",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Obelism/improve-sdk"
+		"url": "https://github.com/Obelism/improve-sdk",
+		"directory": "packages/sdk"
 	},
 	"sideEffects": false,
 	"files": [

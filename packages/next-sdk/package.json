@@ -14,7 +14,8 @@
 	"author": "Obelism <hello@obelism.studio> (https://www.obelism.studio)",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Obelism/improve-sdk-next"
+		"url": "https://github.com/Obelism/improve-sdk",
+		"directory": "packages/next-sdk"
 	},
 	"sideEffects": false,
 	"files": [
