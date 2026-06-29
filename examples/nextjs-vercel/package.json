@@ -12,17 +12,17 @@
 	"dependencies": {
 		"@obelism/improve-sdk-next": "^0.5.0",
 		"@obelism/improve-sdk-react": "^0.5.0",
-		"@vercel/edge-config": "^1.2.1",
-		"next": "^15.1.0",
-		"react": "^19.0.0",
-		"react-dom": "^19.0.0"
+		"@vercel/edge-config": "^1.4.3",
+		"next": "^15.5.19",
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7"
 	},
 	"devDependencies": {
-		"@types/node": "^22.4.0",
-		"@types/react": "^19.0.1",
-		"@types/react-dom": "^19.0.2",
+		"@types/node": "^26.0.1",
+		"@types/react": "^19.2.17",
+		"@types/react-dom": "^19.2.3",
 		"eslint": "^8",
 		"eslint-config-next": "^15.0.1",
-		"typescript": "^5"
+		"typescript": "^5.9.3"
 	}
 }
