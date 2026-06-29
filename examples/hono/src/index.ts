@@ -1,8 +1,6 @@
 import { ImproveServerSDK } from '@obelism/improve-sdk/server'
-// import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { getCookie, setCookie } from 'hono/cookie'
-import { handle } from 'hono/vercel'
 
 const app = new Hono()
 
@@ -53,18 +51,4 @@ app.get('/', async (c) => {
 	return c.text(`AB Test: ${testValue}`)
 })
 
-const handler = handle(app)
-
-export const GET = handler
-export const POST = handler
-export const PATCH = handler
-export const PUT = handler
-export const OPTIONS = handler
-
-// const port = 3000
-// console.log(`Server is running on port ${port}`)
-
-// serve({
-// 	fetch: app.fetch,
-// 	port: 3000,
-// })
+export default app
