@@ -25,6 +25,12 @@ type ConfigFetch = {
 	url: string
 	timeout: number
 	retries: number
+	revalidate?: number
+}
+
+// Next.js augments RequestInit with a `next` field for its fetch cache.
+type RequestInitWithNext = RequestInit & {
+	next?: { revalidate?: number; tags?: string[] }
 }
 
 export class BaseImproveSDK {
@@ -46,6 +52,7 @@ export class BaseImproveSDK {
 		fetchTimeout,
 		baseUrl,
 		configRetries,
+		configRevalidate,
 	}: ImproveSetupArgs) {
 		this.organizationId = organizationId
 		this.environment = environment
@@ -64,6 +71,7 @@ export class BaseImproveSDK {
 				].join('/'),
 				timeout: fetchTimeout || 3000,
 				retries: configRetries ?? CONFIG_RETRY_COUNT,
+				revalidate: configRevalidate,
 			}
 		}
 	}
@@ -73,7 +81,17 @@ export class BaseImproveSDK {
 
 		if (!this.#configFetch) throw new Error('No config fetch setup provided')
 
-		const { url, timeout, retries } = this.#configFetch
+		const { url, timeout, retries, revalidate } = this.#configFetch
+
+		// Opt into the Next.js fetch cache when a revalidate window is configured,
+		// so the datafile is reused across requests instead of re-fetched.
+		const requestInit: RequestInitWithNext = { ...config }
+		if (typeof revalidate === 'number') {
+			requestInit.next = {
+				...(config as RequestInitWithNext | undefined)?.next,
+				revalidate,
+			}
+		}
 
 		// Seed with a generic network error so an exhausted loop always has a
 		// meaningful, typed error to throw.
@@ -94,7 +112,7 @@ export class BaseImproveSDK {
 
 			let res: Response | null
 			try {
-				res = await timeoutFetch(timeout, url, config)
+				res = await timeoutFetch(timeout, url, requestInit)
 			} catch (cause) {
 				// timeoutFetch aborts on timeout (AbortError) and rejects on
 				// network-level failures — both are transient and retryable.

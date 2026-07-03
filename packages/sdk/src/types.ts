@@ -21,6 +21,16 @@ export type ImproveSetupArgs = {
 	 */
 	configRetries?: number
 	/**
+	 * When set, forwarded to the config fetch as `next: { revalidate }`
+	 * (seconds), so Next.js / edge runtimes cache the config datafile between
+	 * requests instead of fetching it on every request. The backend serves the
+	 * datafile with a short `s-maxage` + `stale-while-revalidate`, so a small
+	 * value here (e.g. 30) lets a deployment reuse it and shields the origin
+	 * under load. No effect outside fetch implementations that honor
+	 * `next.revalidate`.
+	 */
+	configRevalidate?: number
+	/**
 	 * Mirror analytics onto the GTM dataLayer (window.dataLayer) with experiment
 	 * dimensions, so they can drive Google Tag Manager / Google Ads conversions.
 	 * Enabled by default; set to `false` to opt out. No effect server-side.

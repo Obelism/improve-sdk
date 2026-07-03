@@ -117,6 +117,28 @@ test('configRetries: 0 disables retries', async () => {
 	expect(fetchMock).toHaveBeenCalledTimes(1)
 })
 
+test('forwards configRevalidate as the Next.js next.revalidate option', async () => {
+	const fetchMock = vi.fn().mockResolvedValue(makeResponse(200, CONFIG))
+	vi.stubGlobal('fetch', fetchMock)
+
+	const sdk = setup({ configRevalidate: 30 })
+	await sdk._fetchConfig()
+
+	const [, options] = fetchMock.mock.calls[0]
+	expect(options.next).toEqual({ revalidate: 30 })
+})
+
+test('omits next when configRevalidate is not set', async () => {
+	const fetchMock = vi.fn().mockResolvedValue(makeResponse(200, CONFIG))
+	vi.stubGlobal('fetch', fetchMock)
+
+	const sdk = setup()
+	await sdk._fetchConfig()
+
+	const [, options] = fetchMock.mock.calls[0]
+	expect(options.next).toBeUndefined()
+})
+
 test('surfaces the parsed Retry-After delay on the thrown error', async () => {
 	const fetchMock = vi
 		.fn()
