@@ -210,10 +210,15 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			})
 		}
 
+		// `keepalive` lets the beacon outlive the page: conversion events are
+		// often fired immediately before a navigation/unload, and a normal fetch
+		// would be cancelled with the document. The payload is well under the
+		// 64KB keepalive budget.
 		return fetch(this.#analyticsUrl, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body),
+			keepalive: true,
 		})
 	}
 }
