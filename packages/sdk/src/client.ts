@@ -3,9 +3,11 @@ import { getVisitorMatchesAudience } from './utils/getVisitorMatchesAudience'
 import { getRandomTestValue } from './utils/getRandomTestValue'
 import { BaseImproveSDK } from './base'
 import { getCookie, setCookie } from './utils/clientCookie'
+import { MAX_ANALYTIC_FIELD_LENGTH } from './config/constants'
 import { ANALYTICS_PATH, BASE_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
 import { pushDataLayer } from './utils/pushDataLayer'
+import { truncate } from './utils/truncate'
 import { ImproveEnvironmentOption, ImproveSetupArgs } from './types'
 
 type Visitor = ParsedUserAgent & {
@@ -189,8 +191,11 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			browser: this.#visitor.browser,
 			os: this.#visitor.os,
 			visitor: this.#visitorRecurring ? 'recurring' : 'new',
-			event: event,
-			message: message || '',
+			// Cap developer-controlled fields to the backend's varchar(256) limit;
+			// an over-length value is otherwise rejected with a 400 and the event
+			// is lost.
+			event: truncate(event, MAX_ANALYTIC_FIELD_LENGTH),
+			message: truncate(message || '', MAX_ANALYTIC_FIELD_LENGTH),
 		}
 
 		if (this.#dataLayerEnabled) {

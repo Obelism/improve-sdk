@@ -14,3 +14,11 @@ export const CONFIG_RETRY_BASE_DELAY_MS = 300
 
 /** Upper bound for a single config-fetch backoff wait, in ms. */
 export const CONFIG_RETRY_MAX_DELAY_MS = 3000
+
+/**
+ * Max length of a single analytic string field. The backend rejects any
+ * field longer than this (varchar(256)) with a 400, so the client caps
+ * developer-controlled values (event, message) to avoid silently dropping
+ * the event.
+ */
+export const MAX_ANALYTIC_FIELD_LENGTH = 256
