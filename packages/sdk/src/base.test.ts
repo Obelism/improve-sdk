@@ -54,6 +54,22 @@ test('resolves and stores config on success', async () => {
 	expect(fetchMock).toHaveBeenCalledTimes(1)
 })
 
+test('normalizes an empty {} response so downstream reads never crash', async () => {
+	const fetchMock = vi.fn().mockResolvedValue(makeResponse(200, {}))
+	vi.stubGlobal('fetch', fetchMock)
+
+	const sdk = setup()
+	await sdk._fetchConfig()
+
+	expect(sdk.config).toEqual({
+		name: '',
+		version: 0,
+		tests: {},
+		flags: {},
+		audience: {},
+	})
+})
+
 test('fails fast (no retry) on a 403 with a typed unauthorized error', async () => {
 	const fetchMock = vi.fn().mockResolvedValue(makeResponse(403, {}))
 	vi.stubGlobal('fetch', fetchMock)

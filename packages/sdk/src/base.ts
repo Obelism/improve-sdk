@@ -17,6 +17,7 @@ import {
 import { delay } from './utils/delay'
 import { getReasonFromStatus, ImproveFetchError } from './utils/errors'
 import { getRandomString } from './utils/getRandomString'
+import { normalizeConfig } from './utils/normalizeConfig'
 import { getBackoffDelayMs, parseRetryAfterMs } from './utils/retry'
 import { timeoutFetch } from './utils/timeoutFetch'
 
@@ -112,9 +113,12 @@ export class BaseImproveSDK {
 
 			if (res.ok) {
 				try {
-					this.config = await res.json()
+					this.config = normalizeConfig(await res.json())
 				} catch (cause) {
-					lastError = new ImproveFetchError('invalid-response', { cause })
+					lastError =
+						cause instanceof ImproveFetchError
+							? cause
+							: new ImproveFetchError('invalid-response', { cause })
 					continue
 				}
 				return this.config
