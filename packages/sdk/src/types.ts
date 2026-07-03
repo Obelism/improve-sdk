@@ -12,6 +12,15 @@ export type ImproveSetupArgs = {
 	baseUrl?: string
 	fetchTimeout?: number
 	/**
+	 * How many times to retry a failed config fetch before giving up. Only
+	 * transient failures are retried (network errors, timeouts, HTTP 5xx, and
+	 * 429 rate limits); auth/validation rejections (403/404/400) fail fast.
+	 * Retries use exponential backoff with jitter and honor `Retry-After`.
+	 * Defaults to 2. Set to 0 to disable retries (e.g. in latency-sensitive
+	 * middleware).
+	 */
+	configRetries?: number
+	/**
 	 * Mirror analytics onto the GTM dataLayer (window.dataLayer) with experiment
 	 * dimensions, so they can drive Google Tag Manager / Google Ads conversions.
 	 * Enabled by default; set to `false` to opt out. No effect server-side.

@@ -1,4 +1,7 @@
 import {
+	CONFIG_RETRY_BASE_DELAY_MS,
+	CONFIG_RETRY_COUNT,
+	CONFIG_RETRY_MAX_DELAY_MS,
 	COOKIE_NAME_VISITOR,
 	VISITOR_ID_LENGTH,
 	VISITOR_ID_PREFIX,
@@ -11,12 +14,16 @@ import {
 	ImproveSetupArgs,
 	ImproveTestState,
 } from './types'
+import { delay } from './utils/delay'
+import { getReasonFromStatus, ImproveFetchError } from './utils/errors'
 import { getRandomString } from './utils/getRandomString'
+import { getBackoffDelayMs, parseRetryAfterMs } from './utils/retry'
 import { timeoutFetch } from './utils/timeoutFetch'
 
 type ConfigFetch = {
 	url: string
 	timeout: number
+	retries: number
 }
 
 export class BaseImproveSDK {
@@ -37,6 +44,7 @@ export class BaseImproveSDK {
 		config,
 		fetchTimeout,
 		baseUrl,
+		configRetries,
 	}: ImproveSetupArgs) {
 		this.organizationId = organizationId
 		this.environment = environment
@@ -54,6 +62,7 @@ export class BaseImproveSDK {
 					this.state || 'active',
 				].join('/'),
 				timeout: fetchTimeout || 3000,
+				retries: configRetries ?? CONFIG_RETRY_COUNT,
 			}
 		}
 	}
@@ -63,15 +72,64 @@ export class BaseImproveSDK {
 
 		if (!this.#configFetch) throw new Error('No config fetch setup provided')
 
-		const res = await timeoutFetch(
-			this.#configFetch.timeout,
-			this.#configFetch.url,
-			config,
-		)
-		if (!res || !res.ok) throw new Error('Configuration fetch timed-out')
+		const { url, timeout, retries } = this.#configFetch
 
-		this.config = await res.json()
-		return this.config
+		// Seed with a generic network error so an exhausted loop always has a
+		// meaningful, typed error to throw.
+		let lastError = new ImproveFetchError('network')
+
+		for (let attempt = 0; attempt <= retries; attempt++) {
+			if (attempt > 0) {
+				// Prefer a server-provided Retry-After; otherwise back off with jitter.
+				await delay(
+					lastError.retryAfterMs ??
+						getBackoffDelayMs(
+							attempt - 1,
+							CONFIG_RETRY_BASE_DELAY_MS,
+							CONFIG_RETRY_MAX_DELAY_MS,
+						),
+				)
+			}
+
+			let res: Response | null
+			try {
+				res = await timeoutFetch(timeout, url, config)
+			} catch (cause) {
+				// timeoutFetch aborts on timeout (AbortError) and rejects on
+				// network-level failures — both are transient and retryable.
+				const aborted = cause instanceof Error && cause.name === 'AbortError'
+				lastError = new ImproveFetchError(aborted ? 'timeout' : 'network', {
+					cause,
+				})
+				continue
+			}
+
+			// timeoutFetch resolves null when the timeout wins the race.
+			if (!res) {
+				lastError = new ImproveFetchError('timeout')
+				continue
+			}
+
+			if (res.ok) {
+				try {
+					this.config = await res.json()
+				} catch (cause) {
+					lastError = new ImproveFetchError('invalid-response', { cause })
+					continue
+				}
+				return this.config
+			}
+
+			lastError = new ImproveFetchError(getReasonFromStatus(res.status), {
+				status: res.status,
+				retryAfterMs: parseRetryAfterMs(res.headers.get('Retry-After')),
+			})
+
+			// Auth/validation rejections won't change on retry — fail fast.
+			if (!lastError.isRetryable) break
+		}
+
+		throw lastError
 	}
 
 	loadConfig = (config: ImproveConfiguration) => {
