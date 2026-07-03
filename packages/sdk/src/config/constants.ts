@@ -22,3 +22,10 @@ export const CONFIG_RETRY_MAX_DELAY_MS = 3000
  * the event.
  */
 export const MAX_ANALYTIC_FIELD_LENGTH = 256
+
+/**
+ * How long to stop sending analytics after the backend returns 429 (usage
+ * limit / rate limit) without a `Retry-After`. Avoids hammering an org that is
+ * already over its quota.
+ */
+export const ANALYTIC_RATE_LIMIT_COOLDOWN_MS = 60_000

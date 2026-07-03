@@ -3,10 +3,14 @@ import { getVisitorMatchesAudience } from './utils/getVisitorMatchesAudience'
 import { getRandomTestValue } from './utils/getRandomTestValue'
 import { BaseImproveSDK } from './base'
 import { getCookie, setCookie } from './utils/clientCookie'
-import { MAX_ANALYTIC_FIELD_LENGTH } from './config/constants'
+import {
+	ANALYTIC_RATE_LIMIT_COOLDOWN_MS,
+	MAX_ANALYTIC_FIELD_LENGTH,
+} from './config/constants'
 import { ANALYTICS_PATH, BASE_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
 import { pushDataLayer } from './utils/pushDataLayer'
+import { parseRetryAfterMs } from './utils/retry'
 import { truncate } from './utils/truncate'
 import { ImproveEnvironmentOption, ImproveSetupArgs } from './types'
 
@@ -46,6 +50,9 @@ export class ImproveClientSDK extends BaseImproveSDK {
 	#visitorId: string = ''
 
 	#analytics: TrackedAnalytics = {}
+
+	// Epoch ms until which analytics posting is suspended after a 429.
+	#rateLimitedUntil: number = 0
 
 	#analyticsUrl = `${BASE_URL}${ANALYTICS_PATH}`
 
@@ -160,6 +167,10 @@ export class ImproveClientSDK extends BaseImproveSDK {
 	postAnalytic = (testSlug: string, event: string, message?: string) => {
 		if (!this.config) return null
 
+		// Suspended after a 429: skip sending, but don't mark the event as
+		// tracked, so it can still fire once the cooldown elapses.
+		if (Date.now() < this.#rateLimitedUntil) return null
+
 		const testConfig = this.config.tests[testSlug]
 
 		if (!this.#visitor) this.setupVisitor()
@@ -214,11 +225,25 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		// often fired immediately before a navigation/unload, and a normal fetch
 		// would be cancelled with the document. The payload is well under the
 		// 64KB keepalive budget.
-		return fetch(this.#analyticsUrl, {
+		const request = fetch(this.#analyticsUrl, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body),
 			keepalive: true,
 		})
+
+		// Back off when the org hits its usage/rate limit. Honor a server
+		// Retry-After when present, otherwise use a fixed cooldown.
+		request
+			.then((res) => {
+				if (res?.status === 429) {
+					const retryAfterMs = parseRetryAfterMs(res.headers.get('Retry-After'))
+					this.#rateLimitedUntil =
+						Date.now() + (retryAfterMs ?? ANALYTIC_RATE_LIMIT_COOLDOWN_MS)
+				}
+			})
+			.catch(() => {})
+
+		return request
 	}
 }
