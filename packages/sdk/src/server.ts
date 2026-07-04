@@ -67,13 +67,23 @@ export class ImproveServerSDK extends BaseImproveSDK {
 		return visitor
 	}
 
-	getFlagValue = (flagSlug: string, visitorId: string, userAgent: string) => {
+	getFlagValue = (
+		flagSlug: string,
+		visitorId: string,
+		userAgent: string,
+		// Coarse geo from the request (SSR/middleware), so audiences can target by
+		// country. The browser can't determine this, so it's passed in here.
+		geo?: { country?: string },
+	) => {
 		const flagConfig = this.getFlagConfig(flagSlug)
 
 		if (!flagConfig || !this.config) return null
 		if (!visitorId) return flagConfig.options[0].slug
 
 		const visitor = this.#getVisitor(visitorId, userAgent)
+		if (geo?.country && visitor[userAgent]) {
+			visitor[userAgent].country = geo.country
+		}
 
 		if (visitor[userAgent]?.[flagSlug]) {
 			return visitor[userAgent][flagSlug]
@@ -94,7 +104,14 @@ export class ImproveServerSDK extends BaseImproveSDK {
 		return flagValue
 	}
 
-	getTestValue = (testSlug: string, visitorId: string, userAgent: string) => {
+	getTestValue = (
+		testSlug: string,
+		visitorId: string,
+		userAgent: string,
+		// Coarse geo from the request (SSR/middleware), so audiences can target by
+		// country. The browser can't determine this, so it's passed in here.
+		geo?: { country?: string },
+	) => {
 		const testConfig = this.getTestConfig(testSlug)
 
 		if (!testConfig || !this.config) return null
@@ -102,6 +119,9 @@ export class ImproveServerSDK extends BaseImproveSDK {
 		if (!visitorId || !userAgent) return testConfig.defaultValue
 
 		const visitor = this.#getVisitor(visitorId, userAgent)
+		if (geo?.country && visitor[userAgent]) {
+			visitor[userAgent].country = geo.country
+		}
 
 		if (visitor[userAgent]?.[testSlug]) {
 			return visitor[userAgent][testSlug]

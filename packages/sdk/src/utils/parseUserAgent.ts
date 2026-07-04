@@ -13,6 +13,9 @@ export type ParsedUserAgent = {
 	device: AudienceParamDevice
 	browser: AudienceParamBrowser
 	os: AudienceParamOs
+	// Coarse geo, not derived from the user agent — merged in server-side
+	// (SSR/middleware) so audiences can target by country. Absent client-side.
+	country?: string
 }
 
 const formatDeviceType = (deviceType?: string): AudienceParamDevice => {

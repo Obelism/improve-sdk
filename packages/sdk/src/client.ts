@@ -140,6 +140,19 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		if (!this.#visitorId || !this.#visitor) return flagConfig.options[0].slug
 		if (this.#visitor?.[flagSlug]) return this.#visitor[flagSlug]
 
+		// Trust a prior assignment (a valid cookie) before re-evaluating audience,
+		// keeping the visitor sticky and honoring a server-side (middleware)
+		// country-targeted assignment.
+		const cookieFlagValue = getCookie(flagSlug)
+		if (
+			cookieFlagValue &&
+			flagConfig.options.some((option) => option.slug === cookieFlagValue)
+		) {
+			this.#visitor[flagSlug] = cookieFlagValue
+			this.#postExposure('flag', flagConfig.id, cookieFlagValue)
+			return cookieFlagValue
+		}
+
 		const visitorMatchesAudience = getVisitorMatchesAudience(
 			this.config.audience[flagConfig.audience],
 			this.#visitor,
@@ -147,8 +160,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		if (!visitorMatchesAudience) return flagConfig.options[0].slug
 
-		const flagValue =
-			getCookie(flagSlug) || getRandomTestValue(flagConfig.options)
+		const flagValue = getRandomTestValue(flagConfig.options)
 
 		if (!flagValue) return null
 
@@ -175,6 +187,18 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		if (!this.#visitorId || !this.#visitor) return testConfig.defaultValue
 		if (this.#visitor?.[testSlug]) return this.#visitor[testSlug]
 
+		// Trust a prior assignment (a valid cookie) before re-evaluating audience
+		// or allocation, so a bucketed visitor stays sticky. This is also how a
+		// country-targeted test resolves in the browser: middleware bucketed the
+		// visitor server-side (where geo is known) and set the cookie, and here we
+		// honor it and record the exposure.
+		const cookieTestValue = getCookie(testSlug)
+		if (cookieTestValue && this.validateTestValue(testSlug, cookieTestValue)) {
+			this.#visitor[testSlug] = cookieTestValue
+			this.#postExposure('test', testConfig.id, cookieTestValue)
+			return cookieTestValue
+		}
+
 		const visitorMatchesAudience = getVisitorMatchesAudience(
 			this.config.audience[testConfig.audience],
 			this.#visitor,
@@ -190,12 +214,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			return this.#visitor?.[testSlug]
 		}
 
-		const cookieTestValue = getCookie(testSlug)
-		const validCookieTestValue =
-			cookieTestValue && this.validateTestValue(testSlug, cookieTestValue)
-		const testValue = validCookieTestValue
-			? cookieTestValue
-			: getRandomTestValue(testConfig.options)
+		const testValue = getRandomTestValue(testConfig.options)
 
 		if (!testValue) return null
 
