@@ -16,7 +16,7 @@ afterEach(() => {
 
 const entry: ImproveDataLayerEntry = {
 	event: 'page_view',
-	improve: { test: 'hero', variant: 'b', visitorId: 'visi_X' },
+	improve: { visitorId: 'visi_X' },
 	_improve: true,
 }
 

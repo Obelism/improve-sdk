@@ -26,12 +26,12 @@ type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
 }
 
-export type CreateAnalytic = {
+// Fields common to every beacon, regardless of type.
+type BeaconCommon<T extends 'event' | 'exposure'> = {
+	type: T
 	organizationId: string
 	environment: ImproveEnvironmentOption
 
-	testId: string
-	testValue: string
 	visitorId: string
 
 	pointer: string
@@ -40,7 +40,13 @@ export type CreateAnalytic = {
 	browser: string
 	os: string
 	visitor: string
+}
 
+/**
+ * A real-world tracked event. Test-independent — the server attributes it to a
+ * test/flag at read time by joining the visitor's exposures.
+ */
+export type CreateEvent = BeaconCommon<'event'> & {
 	event: string
 	message: string
 
@@ -52,10 +58,25 @@ export type CreateAnalytic = {
 	params?: Record<string, unknown>
 }
 
-type TrackedAnalytics = {
-	[TestSlug: string]: {
-		[Event: string]: boolean
-	}
+/**
+ * A visitor's assignment to a test/flag variant, emitted the first time the SDK
+ * resolves a non-holdout value for them. The per-variant exposure count is the
+ * denominator for results.
+ */
+export type CreateExposure = BeaconCommon<'exposure'> & {
+	subjectKind: 'test' | 'flag'
+	subjectId: string
+	variant: string
+}
+
+// Events already sent this instance, so each fires at most once per page/session.
+type TrackedEvents = {
+	[event: string]: boolean
+}
+
+// Exposures already sent this instance, keyed by `${subjectKind}:${subjectId}`.
+type TrackedExposures = {
+	[subject: string]: boolean
 }
 
 export class ImproveClientSDK extends BaseImproveSDK {
@@ -64,7 +85,9 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 	#visitorId: string = ''
 
-	#analytics: TrackedAnalytics = {}
+	#analytics: TrackedEvents = {}
+
+	#exposures: TrackedExposures = {}
 
 	// Epoch ms until which analytics posting is suspended after a 429.
 	#rateLimitedUntil: number = 0
@@ -133,6 +156,10 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		setCookie(flagSlug, flagValue)
 
+		// Record the assignment so the visitor's later events can be attributed to
+		// this flag/variant server-side.
+		this.#postExposure('flag', flagConfig.id, flagValue)
+
 		return flagValue
 	}
 
@@ -176,6 +203,11 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		setCookie(testSlug, testValue)
 
+		// Record the assignment so the visitor's later events can be attributed to
+		// this test/variant server-side. Holdout (allocation) and audience-excluded
+		// visitors return above without an exposure — they aren't in the test.
+		this.#postExposure('test', testConfig.id, testValue)
+
 		return testValue
 	}
 
@@ -183,11 +215,93 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		this.#analyticsUrl = url
 	}
 
+	// Fields shared by every beacon. Callers must ensure the visitor is set up.
+	#beaconCommon = <T extends 'event' | 'exposure'>(
+		type: T,
+	): BeaconCommon<T> => ({
+		type,
+		organizationId: this.organizationId,
+		environment: this.environment,
+		visitorId: this.#visitorId,
+		pointer: this.#visitor!.pointer,
+		device: this.#visitor!.device,
+		screen: getScreenSize(),
+		browser: this.#visitor!.browser,
+		os: this.#visitor!.os,
+		visitor: this.#visitorRecurring ? 'recurring' : 'new',
+	})
+
+	// Sends a beacon with a `keepalive` fetch so it outlives a navigation/unload,
+	// warns on oversized bodies, and backs off on a 429. Shared by events and
+	// exposures.
+	#send = (body: CreateEvent | CreateExposure, label: string) => {
+		// Serialize once so we can both measure and send the same bytes.
+		const serializedBody = JSON.stringify(body)
+
+		// The backend rejects bodies over 8KB with a 413 — realistically only an
+		// oversized `params` (e.g. a large GA4 `ecommerce.items` array) gets there.
+		if (
+			typeof TextEncoder !== 'undefined' &&
+			new TextEncoder().encode(serializedBody).length > MAX_ANALYTIC_BODY_BYTES
+		) {
+			this._warn(
+				`Beacon for "${label}" exceeds the ${MAX_ANALYTIC_BODY_BYTES}-byte ` +
+					`limit and will be rejected by the server — trim the \`params\` payload.`,
+			)
+		}
+
+		const request = fetch(this.#analyticsUrl, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: serializedBody,
+			keepalive: true,
+		})
+
+		// Back off when the org hits its usage/rate limit. Honor a server
+		// Retry-After when present, otherwise use a fixed cooldown.
+		request
+			.then((res) => {
+				if (res?.status === 429) {
+					const retryAfterMs = parseRetryAfterMs(res.headers.get('Retry-After'))
+					this.#rateLimitedUntil =
+						Date.now() + (retryAfterMs ?? ANALYTIC_RATE_LIMIT_COOLDOWN_MS)
+				}
+			})
+			.catch(() => {})
+
+		return request
+	}
+
+	// Emits an exposure beacon the first time a visitor is assigned to a subject
+	// this instance. Idempotent server-side (unique per visitor+subject).
+	#postExposure = (
+		subjectKind: 'test' | 'flag',
+		subjectId: string,
+		variant: string,
+	) => {
+		if (!this.#visitor || !this.#visitorId) return
+
+		// Suspended after a 429: skip, but don't mark tracked so it can retry later.
+		if (Date.now() < this.#rateLimitedUntil) return
+
+		const key = `${subjectKind}:${subjectId}`
+		if (this.#exposures[key]) return
+		this.#exposures[key] = true
+
+		const body: CreateExposure = {
+			...this.#beaconCommon('exposure'),
+			subjectKind,
+			subjectId,
+			variant,
+		}
+
+		return this.#send(body, key)
+	}
+
 	postAnalytic = (
-		testSlug: string,
 		event: ImproveEventName,
 		// Accepts a structured payload, or a plain string as shorthand for the
-		// `message`. Backwards compatible with the previous `message?: string`.
+		// `message`.
 		payload?: ImproveAnalyticPayload | string,
 	) => {
 		if (!this.config) return null
@@ -224,37 +338,17 @@ export class ImproveClientSDK extends BaseImproveSDK {
 				? params
 				: undefined
 
-		const testConfig = this.config.tests[testSlug]
-
 		if (!this.#visitor) this.setupVisitor()
-		if (!testConfig || !this.#visitor || this.#analytics?.[testSlug]?.[event]) {
-			return null
-		}
 
-		const testSlugAnalytics = this.#analytics[testSlug] || {}
-		testSlugAnalytics[event] = true
-		this.#analytics[testSlug] = testSlugAnalytics
+		// The event is test-independent: it's recorded once per visitor and later
+		// attributed to whichever tests/flags the visitor was exposed to. Dedup per
+		// event name so it fires at most once per page/session.
+		if (!this.#visitor || this.#analytics[event]) return null
 
-		let testValue = this.#visitor?.[testSlug] || null
-		if (!testValue) {
-			testValue = this.getTestValue(testSlug) || null
-		}
+		this.#analytics[event] = true
 
-		if (!testValue) return
-
-		const body: CreateAnalytic = {
-			organizationId: this.organizationId,
-			environment: this.environment,
-
-			testId: testConfig.id,
-			testValue: testValue,
-			visitorId: this.#visitorId,
-			pointer: this.#visitor.pointer,
-			device: this.#visitor.device,
-			screen: getScreenSize(),
-			browser: this.#visitor.browser,
-			os: this.#visitor.os,
-			visitor: this.#visitorRecurring ? 'recurring' : 'new',
+		const body: CreateEvent = {
+			...this.#beaconCommon('event'),
 			// Cap developer-controlled fields to the backend's varchar(256) limit;
 			// an over-length value is otherwise rejected with a 400 and the event
 			// is lost.
@@ -275,8 +369,6 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			pushDataLayer({
 				event,
 				improve: {
-					test: testSlug,
-					variant: testValue,
 					visitorId: this.#visitorId,
 				},
 				...(hasValue ? { value } : {}),
@@ -288,46 +380,6 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			})
 		}
 
-		// Serialize once so we can both measure and send the same bytes.
-		const serializedBody = JSON.stringify(body)
-
-		// The backend rejects bodies over 8KB with a 413 — realistically only an
-		// oversized `params` (e.g. a large GA4 `ecommerce.items` array) gets there.
-		// Warn so the dropped event isn't silent; still attempt the send in case
-		// the server limit differs.
-		if (
-			typeof TextEncoder !== 'undefined' &&
-			new TextEncoder().encode(serializedBody).length > MAX_ANALYTIC_BODY_BYTES
-		) {
-			this._warn(
-				`Analytic for "${event}" exceeds the ${MAX_ANALYTIC_BODY_BYTES}-byte ` +
-					`limit and will be rejected by the server — trim the \`params\` payload.`,
-			)
-		}
-
-		// `keepalive` lets the beacon outlive the page: conversion events are
-		// often fired immediately before a navigation/unload, and a normal fetch
-		// would be cancelled with the document. The 8KB body cap is well within
-		// the browser's 64KB keepalive budget.
-		const request = fetch(this.#analyticsUrl, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: serializedBody,
-			keepalive: true,
-		})
-
-		// Back off when the org hits its usage/rate limit. Honor a server
-		// Retry-After when present, otherwise use a fixed cooldown.
-		request
-			.then((res) => {
-				if (res?.status === 429) {
-					const retryAfterMs = parseRetryAfterMs(res.headers.get('Retry-After'))
-					this.#rateLimitedUntil =
-						Date.now() + (retryAfterMs ?? ANALYTIC_RATE_LIMIT_COOLDOWN_MS)
-				}
-			})
-			.catch(() => {})
-
-		return request
+		return this.#send(body, event)
 	}
 }
