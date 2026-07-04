@@ -5,14 +5,22 @@ import { BaseImproveSDK } from './base'
 import { getCookie, setCookie } from './utils/clientCookie'
 import {
 	ANALYTIC_RATE_LIMIT_COOLDOWN_MS,
+	MAX_ANALYTIC_BODY_BYTES,
 	MAX_ANALYTIC_FIELD_LENGTH,
+	MAX_CURRENCY_FIELD_LENGTH,
 } from './config/constants'
 import { ANALYTICS_PATH, BASE_URL } from './config/urls'
 import { getScreenSize } from './utils/getScreenSize'
-import { pushDataLayer } from './utils/pushDataLayer'
+import { isSnakeCaseEventName } from './utils/isSnakeCaseEventName'
+import { pushDataLayer, resetDataLayerEcommerce } from './utils/pushDataLayer'
 import { parseRetryAfterMs } from './utils/retry'
 import { truncate } from './utils/truncate'
-import { ImproveEnvironmentOption, ImproveSetupArgs } from './types'
+import {
+	ImproveAnalyticPayload,
+	ImproveEnvironmentOption,
+	ImproveEventName,
+	ImproveSetupArgs,
+} from './types'
 
 type Visitor = ParsedUserAgent & {
 	[testSlug: string]: string
@@ -35,6 +43,13 @@ export type CreateAnalytic = {
 
 	event: string
 	message: string
+
+	/** GA4-aligned numeric value aggregated into revenue / AOV per variant. */
+	value?: number
+	/** ISO 4217 currency for `value`. */
+	currency?: string
+	/** Extra event params stored as JSON (e.g. a GA4 `ecommerce` object). */
+	params?: Record<string, unknown>
 }
 
 type TrackedAnalytics = {
@@ -53,6 +68,10 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 	// Epoch ms until which analytics posting is suspended after a 429.
 	#rateLimitedUntil: number = 0
+
+	// Event names already warned about, so the snake_case nudge fires once per
+	// offending name instead of on every call.
+	#warnedEventNames = new Set<string>()
 
 	#analyticsUrl = `${BASE_URL}${ANALYTICS_PATH}`
 
@@ -164,12 +183,46 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		this.#analyticsUrl = url
 	}
 
-	postAnalytic = (testSlug: string, event: string, message?: string) => {
+	postAnalytic = (
+		testSlug: string,
+		event: ImproveEventName,
+		// Accepts a structured payload, or a plain string as shorthand for the
+		// `message`. Backwards compatible with the previous `message?: string`.
+		payload?: ImproveAnalyticPayload | string,
+	) => {
 		if (!this.config) return null
+
+		// GTM reserves the `gtm.*` namespace for its own events; never emit into
+		// it, or the mirrored dataLayer entry would collide with GTM internals.
+		if (event.startsWith('gtm.')) return null
+
+		// Nudge developers toward the snake_case / GA4 naming convention. Warn
+		// once per offending name so it's noticeable without spamming the console;
+		// silence entirely with the `disableWarnings` setup option.
+		if (!isSnakeCaseEventName(event) && !this.#warnedEventNames.has(event)) {
+			this.#warnedEventNames.add(event)
+			this._warn(
+				`Event name "${event}" isn't snake_case. Prefer GA4-style names ` +
+					`like "add_to_cart" or "purchase" so your events line up with ` +
+					`GA4 / Google Tag Manager. Pass \`disableWarnings: true\` at setup ` +
+					`to silence this.`,
+			)
+		}
 
 		// Suspended after a 429: skip sending, but don't mark the event as
 		// tracked, so it can still fire once the cooldown elapses.
 		if (Date.now() < this.#rateLimitedUntil) return null
+
+		const { value, currency, message, params }: ImproveAnalyticPayload =
+			typeof payload === 'string' ? { message: payload } : (payload ?? {})
+		const hasValue = typeof value === 'number' && Number.isFinite(value)
+		// The backend requires `params` to be a plain (non-array) object and 400s
+		// the whole event otherwise — drop an invalid value rather than lose the
+		// event.
+		const validParams =
+			params && typeof params === 'object' && !Array.isArray(params)
+				? params
+				: undefined
 
 		const testConfig = this.config.tests[testSlug]
 
@@ -207,9 +260,18 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			// is lost.
 			event: truncate(event, MAX_ANALYTIC_FIELD_LENGTH),
 			message: truncate(message || '', MAX_ANALYTIC_FIELD_LENGTH),
+			...(hasValue ? { value } : {}),
+			...(currency
+				? { currency: truncate(currency, MAX_CURRENCY_FIELD_LENGTH) }
+				: {}),
+			...(validParams ? { params: validParams } : {}),
 		}
 
 		if (this.#dataLayerEnabled) {
+			// Clear any prior ecommerce object first so its keys don't bleed into
+			// this event (GTM/GA4 best practice).
+			if (validParams && 'ecommerce' in validParams) resetDataLayerEcommerce()
+
 			pushDataLayer({
 				event,
 				improve: {
@@ -217,18 +279,40 @@ export class ImproveClientSDK extends BaseImproveSDK {
 					variant: testValue,
 					visitorId: this.#visitorId,
 				},
+				...(hasValue ? { value } : {}),
+				...(currency ? { currency } : {}),
+				// Spread custom params (incl. a GA4 `ecommerce` object) to the top
+				// level so GA4/GTM tags can read them directly.
+				...(validParams ?? {}),
 				_improve: true,
 			})
 		}
 
+		// Serialize once so we can both measure and send the same bytes.
+		const serializedBody = JSON.stringify(body)
+
+		// The backend rejects bodies over 8KB with a 413 — realistically only an
+		// oversized `params` (e.g. a large GA4 `ecommerce.items` array) gets there.
+		// Warn so the dropped event isn't silent; still attempt the send in case
+		// the server limit differs.
+		if (
+			typeof TextEncoder !== 'undefined' &&
+			new TextEncoder().encode(serializedBody).length > MAX_ANALYTIC_BODY_BYTES
+		) {
+			this._warn(
+				`Analytic for "${event}" exceeds the ${MAX_ANALYTIC_BODY_BYTES}-byte ` +
+					`limit and will be rejected by the server — trim the \`params\` payload.`,
+			)
+		}
+
 		// `keepalive` lets the beacon outlive the page: conversion events are
 		// often fired immediately before a navigation/unload, and a normal fetch
-		// would be cancelled with the document. The payload is well under the
-		// 64KB keepalive budget.
+		// would be cancelled with the document. The 8KB body cap is well within
+		// the browser's 64KB keepalive budget.
 		const request = fetch(this.#analyticsUrl, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(body),
+			body: serializedBody,
 			keepalive: true,
 		})
 

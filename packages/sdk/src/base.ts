@@ -40,6 +40,8 @@ export class BaseImproveSDK {
 
 	#configFetch: ConfigFetch | null = null
 
+	#warningsDisabled: boolean = false
+
 	config: ImproveConfiguration | null = null
 
 	_baseUrl: undefined | string
@@ -53,11 +55,13 @@ export class BaseImproveSDK {
 		baseUrl,
 		configRetries,
 		configRevalidate,
+		disableWarnings,
 	}: ImproveSetupArgs) {
 		this.organizationId = organizationId
 		this.environment = environment
 		this.state = state
 		this._baseUrl = baseUrl || BASE_URL
+		this.#warningsDisabled = disableWarnings ?? false
 
 		if (config) {
 			this.config = config
@@ -166,6 +170,17 @@ export class BaseImproveSDK {
 	}
 
 	getVisitorCookieName = () => COOKIE_NAME_VISITOR
+
+	/**
+	 * Emit a development warning, unless warnings were disabled via the
+	 * `disableWarnings` setup option. Centralized so every SDK warning honors the
+	 * same switch. No-op where `console` is unavailable.
+	 */
+	protected _warn = (message: string) => {
+		if (this.#warningsDisabled) return
+		if (typeof console === 'undefined') return
+		console.warn(`[Improve] ${message}`)
+	}
 
 	validateTestValue = (testName: string, testValue: string) => {
 		if (!this.config)

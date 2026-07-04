@@ -1,6 +1,10 @@
 import { afterEach, expect, test } from 'vitest'
 
-import { ImproveDataLayerEntry, pushDataLayer } from './pushDataLayer'
+import {
+	ImproveDataLayerEntry,
+	pushDataLayer,
+	resetDataLayerEcommerce,
+} from './pushDataLayer'
 
 const setWindow = (value: unknown) => {
 	;(globalThis as { window?: unknown }).window = value
@@ -11,7 +15,7 @@ afterEach(() => {
 })
 
 const entry: ImproveDataLayerEntry = {
-	event: 'pageLoad',
+	event: 'page_view',
 	improve: { test: 'hero', variant: 'b', visitorId: 'visi_X' },
 	_improve: true,
 }
@@ -34,6 +38,38 @@ test('appends when GTM already created the dataLayer', () => {
 	expect(dataLayer?.[1]).toEqual(entry)
 })
 
+test('carries value, currency and extra params on the entry', () => {
+	setWindow({})
+
+	const ecommerceEntry: ImproveDataLayerEntry = {
+		...entry,
+		event: 'purchase',
+		value: 72.05,
+		currency: 'USD',
+		ecommerce: { transaction_id: 'T_1', items: [{ item_id: 'SKU_1' }] },
+	}
+
+	pushDataLayer(ecommerceEntry)
+
+	expect((globalThis as { window: Window }).window.dataLayer?.[0]).toEqual(
+		ecommerceEntry,
+	)
+})
+
 test('is a no-op without a window (server-side)', () => {
 	expect(() => pushDataLayer(entry)).not.toThrow()
+})
+
+test('resetDataLayerEcommerce pushes an ecommerce:null reset', () => {
+	setWindow({ dataLayer: [{ event: 'gtm.js' }] })
+
+	resetDataLayerEcommerce()
+
+	const { dataLayer } = (globalThis as { window: Window }).window
+	expect(dataLayer).toHaveLength(2)
+	expect(dataLayer?.[1]).toEqual({ ecommerce: null })
+})
+
+test('resetDataLayerEcommerce is a no-op without a window (server-side)', () => {
+	expect(() => resetDataLayerEcommerce()).not.toThrow()
 })

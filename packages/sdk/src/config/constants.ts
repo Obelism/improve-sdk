@@ -24,6 +24,21 @@ export const CONFIG_RETRY_MAX_DELAY_MS = 3000
 export const MAX_ANALYTIC_FIELD_LENGTH = 256
 
 /**
+ * Max length of the analytic `currency` field. The backend column is
+ * `varchar(8)` (ISO 4217 is 3 chars), and a longer value throws at insert —
+ * failing the *entire* event, not just the currency — so the client caps it
+ * here rather than at the generic 256-char limit.
+ */
+export const MAX_CURRENCY_FIELD_LENGTH = 8
+
+/**
+ * Max size of the analytic POST body. The backend rejects anything larger with
+ * a 413 (`MAX_BODY_BYTES = 8 * 1024`), so an oversized `params` payload silently
+ * loses the event. Kept in sync with the backend limit.
+ */
+export const MAX_ANALYTIC_BODY_BYTES = 8 * 1024
+
+/**
  * How long to stop sending analytics after the backend returns 429 (usage
  * limit / rate limit) without a `Retry-After`. Avoids hammering an org that is
  * already over its quota.

@@ -1,15 +1,22 @@
+import { ImproveEventName } from '../types'
+
 export type ImproveDataLayerEntry = {
-	event: string
+	event: ImproveEventName
 	improve: {
 		test: string
 		variant: string
 		visitorId: string
 	}
+	/** GA4 numeric value / currency, when provided on the analytic. */
+	value?: number
+	currency?: string
 	/**
 	 * Marks the entry as originating from Improve so platform-side dataLayer
 	 * importers can ignore it (loop prevention).
 	 */
 	_improve: true
+	/** Any extra event params (e.g. a GA4 `ecommerce` object) spread onto the entry. */
+	[param: string]: unknown
 }
 
 declare global {
@@ -28,4 +35,17 @@ export const pushDataLayer = (entry: ImproveDataLayerEntry) => {
 
 	window.dataLayer = window.dataLayer || []
 	window.dataLayer.push(entry)
+}
+
+/**
+ * Clear the dataLayer `ecommerce` object before pushing an ecommerce event, so
+ * leftover keys (old `items`, a stale `coupon`…) from a previous event don't
+ * bleed into the next one — the GTM/GA4 recommended reset. No-op outside the
+ * browser.
+ */
+export const resetDataLayerEcommerce = () => {
+	if (typeof window === 'undefined') return
+
+	window.dataLayer = window.dataLayer || []
+	window.dataLayer.push({ ecommerce: null })
 }

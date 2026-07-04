@@ -7,7 +7,7 @@ export const TrackPageView = ({ page }: { page: string }) => {
 	const postAnalytic = usePostAnalytic('startpage-visual')
 
 	useEffect(() => {
-		postAnalytic('pageLoad', page)
+		postAnalytic('page_view', page)
 	}, [page, postAnalytic])
 
 	return null

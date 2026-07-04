@@ -36,6 +36,12 @@ export type ImproveSetupArgs = {
 	 * Enabled by default; set to `false` to opt out. No effect server-side.
 	 */
 	dataLayer?: boolean
+	/**
+	 * Silence all Improve development warnings (e.g. the nudge when an event name
+	 * isn't `snake_case`). Warnings are on by default to steer teams toward the
+	 * naming convention; set to `true` in production or to opt out entirely.
+	 */
+	disableWarnings?: boolean
 }
 
 export type ImproveFlagOption = {
@@ -63,10 +69,84 @@ export type ImproveFlags = {
 	[flagSlug in string]: ImproveFlag
 }
 
+/**
+ * Recommended analytic event names, aligned with the Google Analytics 4 /
+ * Google Tag Manager recommended events. Reusing these means your Improve
+ * events line up with any GA4/GTM tagging you already have — especially when
+ * mirroring analytics onto the GTM dataLayer (`dataLayer` setup option).
+ *
+ * @see https://support.google.com/analytics/answer/9267735
+ */
+export type ImproveRecommendedEventName =
+	| 'page_view'
+	| 'view_item'
+	| 'view_item_list'
+	| 'select_item'
+	| 'add_to_cart'
+	| 'remove_from_cart'
+	| 'view_cart'
+	| 'begin_checkout'
+	| 'add_payment_info'
+	| 'add_shipping_info'
+	| 'purchase'
+	| 'refund'
+	| 'sign_up'
+	| 'login'
+	| 'search'
+	| 'select_content'
+	| 'share'
+	| 'generate_lead'
+
+/**
+ * The name of an analytic event, e.g. the `event` passed to `postAnalytic`.
+ *
+ * Prefer **`snake_case`** names (`add_to_cart`, `sign_up`, `purchase`) to match
+ * GA4 / GTM conventions, and reuse the same name everywhere the action happens.
+ * Common GA4 recommended names are offered as autocomplete suggestions, but any
+ * string is accepted so you can still use your own custom event names.
+ */
+export type ImproveEventName = ImproveRecommendedEventName | (string & {})
+
 export type ImproveEvents = {
-	start: string
-	metrics: string[]
-	conversion: string
+	start: ImproveEventName
+	metrics: ImproveEventName[]
+	conversion: ImproveEventName
+	/**
+	 * Ordered funnel steps for the multi-step conversion view, when the test
+	 * defines one. The last step is the conversion; when absent, the funnel is
+	 * `[start, ...metrics, conversion]`.
+	 */
+	funnel?: ImproveEventName[]
+}
+
+/**
+ * Structured payload for an analytic event, aligned with Google Analytics 4
+ * event parameters.
+ *
+ * - `value` (with `currency`) is the numeric measure Improve aggregates into
+ *   **revenue / average order value per variant** — pass an order total on your
+ *   conversion event to compare not just how often a variant converts, but at
+ *   what value.
+ * - `params` is passed through to the GTM dataLayer and stored as JSON, but is
+ *   not aggregated by Improve's own results. Use it for a GA4 `ecommerce`
+ *   object (`{ ecommerce: { items: [...] } }`) or any custom event parameters.
+ * - `message` is kept for the simple single-string case.
+ *
+ * `postAnalytic` also accepts a plain string as a shorthand for `{ message }`.
+ */
+export type ImproveAnalyticPayload = {
+	/** Numeric value of the event, e.g. an order total. GA4 `value`. */
+	value?: number
+	/** ISO 4217 currency code for `value`, e.g. `'USD'`. GA4 `currency`. */
+	currency?: string
+	/** A short freeform label stored alongside the event. */
+	message?: string
+	/**
+	 * Extra event parameters, spread onto the GTM dataLayer entry and stored as
+	 * JSON. Provide `{ ecommerce: {...} }` for GA4 ecommerce tags; the SDK clears
+	 * the previous `ecommerce` object first to avoid data bleed between events.
+	 */
+	params?: Record<string, unknown>
 }
 
 export type ImproveResult = {

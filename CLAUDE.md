@@ -58,7 +58,7 @@ npm run publish-packages  # Build, lint, test, then publish
 The SDK communicates with two endpoints (see `packages/sdk/src/config/urls.ts`):
 
 - **Datafile/Config** `GET /config` — fetches the organization's configuration (tests, flags, audiences) for an environment. Server SDK authenticates with a `token`; client SDK uses `organizationId` + `environment`.
-- **Analytics** `POST /api/log` — receives analytic events (e.g. pageView, conversion) tied to a test slug. Client SDK's `postAnalytic()` sends here; `setAnalyticsUrls()` can redirect to a proxy to avoid ad blockers.
+- **Analytics** `POST /api/log` — receives analytic events (e.g. page_view, conversion) tied to a test slug. Client SDK's `postAnalytic()` sends here; `setAnalyticsUrls()` can redirect to a proxy to avoid ad blockers.
 
 ### Domain Concepts
 

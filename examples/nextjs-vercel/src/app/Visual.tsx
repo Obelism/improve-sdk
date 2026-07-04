@@ -22,7 +22,7 @@ export const Visual = ({
 			priority
 			style={variant === 'control' ? {} : { transform: 'scaleX(-1)' }}
 			onClick={() => {
-				postAnalytic('visualClicked')
+				postAnalytic('visual_click')
 			}}
 		/>
 	)

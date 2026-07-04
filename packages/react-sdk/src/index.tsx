@@ -8,7 +8,11 @@ import {
 	useState,
 } from 'react'
 import type { ImproveClientSDK } from '@obelism/improve-sdk/client'
-import type { ImproveSetupArgs } from '@obelism/improve-sdk/types'
+import type {
+	ImproveAnalyticPayload,
+	ImproveEventName,
+	ImproveSetupArgs,
+} from '@obelism/improve-sdk/types'
 
 export type ImproveProviderProps = {
 	children?: React.ReactNode
@@ -94,8 +98,8 @@ export const generateImproveProvider = (improveSetupArgs: ImproveSetupArgs) => {
 		const { postAnalytic } = useContext(ImproveContext)
 
 		return useCallback(
-			(event: string, message?: string) => {
-				return postAnalytic(testSlug, event, message)
+			(event: ImproveEventName, payload?: ImproveAnalyticPayload | string) => {
+				return postAnalytic(testSlug, event, payload)
 			},
 			[postAnalytic, testSlug],
 		)
