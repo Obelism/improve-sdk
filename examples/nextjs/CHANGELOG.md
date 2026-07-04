@@ -1,5 +1,13 @@
 # site-nextjs
 
+## 1.1.2
+
+### Patch Changes
+
+- Updated dependencies [2af02c9]
+  - @obelism/improve-sdk-react@0.6.0
+  - example-nextjs-vercel@1.0.5
+
 ## 1.1.1
 
 ### Patch Changes
