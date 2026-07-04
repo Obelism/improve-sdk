@@ -1,6 +1,5 @@
 import {
 	createContext,
-	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
@@ -8,11 +7,7 @@ import {
 	useState,
 } from 'react'
 import type { ImproveClientSDK } from '@obelism/improve-sdk/client'
-import type {
-	ImproveAnalyticPayload,
-	ImproveEventName,
-	ImproveSetupArgs,
-} from '@obelism/improve-sdk/types'
+import type { ImproveSetupArgs } from '@obelism/improve-sdk/types'
 
 export type ImproveProviderProps = {
 	children?: React.ReactNode
@@ -94,15 +89,9 @@ export const generateImproveProvider = (improveSetupArgs: ImproveSetupArgs) => {
 
 	const useImproveStatus = () => useContext(ImproveStatusContext)
 
-	const usePostAnalytic = (testSlug: string) => {
+	const usePostAnalytic = () => {
 		const { postAnalytic } = useContext(ImproveContext)
-
-		return useCallback(
-			(event: ImproveEventName, payload?: ImproveAnalyticPayload | string) => {
-				return postAnalytic(testSlug, event, payload)
-			},
-			[postAnalytic, testSlug],
-		)
+		return postAnalytic
 	}
 
 	const useTestValue = (testSlug: string, fallback?: string) => {

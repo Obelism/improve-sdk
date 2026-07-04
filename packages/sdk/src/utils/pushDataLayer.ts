@@ -3,8 +3,9 @@ import { ImproveEventName } from '../types'
 export type ImproveDataLayerEntry = {
 	event: ImproveEventName
 	improve: {
-		test: string
-		variant: string
+		// Events are test-independent; attribution to a test/variant happens
+		// server-side by joining the visitor's exposures, so only the visitor is
+		// carried here.
 		visitorId: string
 	}
 	/** GA4 numeric value / currency, when provided on the analytic. */
