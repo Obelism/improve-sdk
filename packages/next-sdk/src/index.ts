@@ -49,20 +49,26 @@ export const generateImproveNextMiddleware = (
 			const visitorCookieName = args.improveSdk.getVisitorCookieName()
 			const cookieVisitorId = request.cookies.get(visitorCookieName)?.value
 			const validCookieVisitorId =
-				cookieVisitorId &&
-				args.improveSdk.validateVisitorId(cookieVisitorId)
+				cookieVisitorId && args.improveSdk.validateVisitorId(cookieVisitorId)
 			const visitorId = validCookieVisitorId
 				? cookieVisitorId
 				: args.improveSdk.generateVisitorId()
 
 			const validateValue = (value: string | null | undefined) => {
 				return value &&
-					args.improveSdk.validateTestValue(
-						serverABTestConfig.slug,
-						value,
-					)
+					args.improveSdk.validateTestValue(serverABTestConfig.slug, value)
 					? value
 					: null
+			}
+
+			// Coarse geo from the edge, so country-targeted audiences resolve
+			// server-side (the browser can't determine country). Vercel sets
+			// x-vercel-ip-country; Cloudflare sets cf-ipcountry.
+			const geo = {
+				country:
+					request.headers.get('x-vercel-ip-country') ??
+					request.headers.get('cf-ipcountry') ??
+					undefined,
 			}
 
 			// Get AB test value from: searchParam, cookies or get generate a new value
@@ -70,13 +76,12 @@ export const generateImproveNextMiddleware = (
 				validateValue(
 					request.nextUrl.searchParams.get(serverABTestConfig.slug),
 				) ||
-				validateValue(
-					request.cookies.get(serverABTestConfig.slug)?.value,
-				) ||
+				validateValue(request.cookies.get(serverABTestConfig.slug)?.value) ||
 				args.improveSdk.getTestValue(
 					serverABTestConfig.slug,
 					visitorId,
 					ua,
+					geo,
 				)
 
 			const testMatchOption = serverABTestConfig.options.find(
@@ -92,8 +97,7 @@ export const generateImproveNextMiddleware = (
 				const url = request.nextUrl.clone()
 
 				url.pathname = serverABTestConfig?.formatSlug
-					? serverABTestConfig?.formatSlug(url, testMatchOption)
-							?.pathname
+					? serverABTestConfig?.formatSlug(url, testMatchOption)?.pathname
 					: testMatchOption.slug
 
 				response = NextResponse.rewrite(url)

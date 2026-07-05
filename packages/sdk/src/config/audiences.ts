@@ -3,6 +3,11 @@
  * @description All posibile audience tracking options
  */
 export const AUDIENCE_PARAMS = {
+	//? Location — coarse IP-geolocation (ISO 3166-1 alpha-2 country code). Values
+	//? aren't enumerated here (any country code is valid); the key exists so
+	//? audiences can target `country`. Resolved server-side (SSR/middleware) from
+	//? the request, since the browser can't determine it from the user agent.
+	country: [] as ReadonlyArray<string>,
 	//? Technical
 	pointer: ['coarse', 'fine'],
 	device: [
