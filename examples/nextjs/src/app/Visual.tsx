@@ -10,7 +10,7 @@ export const Visual = ({
 	className?: string
 	variant: 'control' | 'variation'
 }) => {
-	const postAnalytic = usePostAnalytic('startpage-visual')
+	const postAnalytic = usePostAnalytic()
 
 	return (
 		<Image
