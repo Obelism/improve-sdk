@@ -131,6 +131,8 @@ export type ImproveEvents = {
  *   not aggregated by Improve's own results. Use it for a GA4 `ecommerce`
  *   object (`{ ecommerce: { items: [...] } }`) or any custom event parameters.
  * - `message` is kept for the simple single-string case.
+ * - `dedupeKey` distinguishes repeated firings of the same event name — see
+ *   below.
  *
  * `postAnalytic` also accepts a plain string as a shorthand for `{ message }`.
  */
@@ -147,6 +149,16 @@ export type ImproveAnalyticPayload = {
 	 * the previous `ecommerce` object first to avoid data bleed between events.
 	 */
 	params?: Record<string, unknown>
+	/**
+	 * Distinguishes multiple firings of the same event name within one
+	 * page/session, e.g. an item or promotion id for a `view_promotion` /
+	 * `view_item_list` fired once per item. `postAnalytic` dedupes per `event`
+	 * name by default; passing a `dedupeKey` scopes that dedup to `event` +
+	 * `dedupeKey` instead, so the same event name can fire once per distinct
+	 * subject rather than only once total. Not sent to the server or the
+	 * dataLayer — local dedup only.
+	 */
+	dedupeKey?: string
 }
 
 export type ImproveResult = {

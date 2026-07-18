@@ -69,7 +69,8 @@ export type CreateExposure = BeaconCommon<'exposure'> & {
 	variant: string
 }
 
-// Events already sent this instance, so each fires at most once per page/session.
+// Events already sent this instance, keyed by event name (or `event:dedupeKey`
+// when the caller passes one), so each fires at most once per page/session.
 type TrackedEvents = {
 	[event: string]: boolean
 }
@@ -346,7 +347,13 @@ export class ImproveClientSDK extends BaseImproveSDK {
 		// tracked, so it can still fire once the cooldown elapses.
 		if (Date.now() < this.#rateLimitedUntil) return null
 
-		const { value, currency, message, params }: ImproveAnalyticPayload =
+		const {
+			value,
+			currency,
+			message,
+			params,
+			dedupeKey,
+		}: ImproveAnalyticPayload =
 			typeof payload === 'string' ? { message: payload } : (payload ?? {})
 		const hasValue = typeof value === 'number' && Number.isFinite(value)
 		// The backend requires `params` to be a plain (non-array) object and 400s
@@ -361,10 +368,13 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 		// The event is test-independent: it's recorded once per visitor and later
 		// attributed to whichever tests/flags the visitor was exposed to. Dedup per
-		// event name so it fires at most once per page/session.
-		if (!this.#visitor || this.#analytics[event]) return null
+		// event name (or per `event:dedupeKey`, when the caller distinguishes
+		// repeated firings of the same name) so it fires at most once per
+		// page/session.
+		const trackingKey = dedupeKey ? `${event}:${dedupeKey}` : event
+		if (!this.#visitor || this.#analytics[trackingKey]) return null
 
-		this.#analytics[event] = true
+		this.#analytics[trackingKey] = true
 
 		const body: CreateEvent = {
 			...this.#beaconCommon('event'),
@@ -399,6 +409,6 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			})
 		}
 
-		return this.#send(body, event)
+		return this.#send(body, trackingKey)
 	}
 }
