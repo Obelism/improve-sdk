@@ -34,9 +34,9 @@ const TEST_CONFIG: ImproveConfiguration = {
 				},
 			],
 			events: {
-				start: 'pageLoad',
+				start: { event: 'pageLoad', scope: 'homepage' },
 				metrics: [],
-				conversion: 'visualClicked',
+				conversion: { event: 'visualClicked', scope: 'homepage' },
 			},
 		},
 	},

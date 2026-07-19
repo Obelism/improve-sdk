@@ -48,7 +48,7 @@ type BeaconCommon<T extends 'event' | 'exposure'> = {
  */
 export type CreateEvent = BeaconCommon<'event'> & {
 	event: string
-	message: string
+	scope: string
 
 	/** GA4-aligned numeric value aggregated into revenue / AOV per variant. */
 	value?: number
@@ -96,6 +96,10 @@ export class ImproveClientSDK extends BaseImproveSDK {
 	// Event names already warned about, so the snake_case nudge fires once per
 	// offending name instead of on every call.
 	#warnedEventNames = new Set<string>()
+
+	// Fires the missing-scope warning at most once per SDK instance, not once
+	// per call — a caller that forgets `scope` is likely forgetting it everywhere.
+	#warnedMissingScope = false
 
 	#analyticsUrl = `${BASE_URL}${ANALYTICS_PATH}`
 
@@ -320,9 +324,11 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 	postAnalytic = (
 		event: ImproveEventName,
-		// Accepts a structured payload, or a plain string as shorthand for the
-		// `message`.
-		payload?: ImproveAnalyticPayload | string,
+		// Required, freeform, but always present — the stable second half of the
+		// event's identity (e.g. "homepage_hero_login"). Not a display string;
+		// keep it structured and consistent, unlike the old `message` field.
+		scope: string,
+		payload?: ImproveAnalyticPayload,
 	) => {
 		if (!this.config) return null
 
@@ -343,18 +349,21 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			)
 		}
 
+		if (!scope && !this.#warnedMissingScope) {
+			this.#warnedMissingScope = true
+			this._warn(
+				`postAnalytic("${event}", ...) was called with an empty scope. ` +
+					`scope is required — pass a short, stable identifier for where/what ` +
+					`this event refers to, e.g. "homepage_hero_login".`,
+			)
+		}
+
 		// Suspended after a 429: skip sending, but don't mark the event as
 		// tracked, so it can still fire once the cooldown elapses.
 		if (Date.now() < this.#rateLimitedUntil) return null
 
-		const {
-			value,
-			currency,
-			message,
-			params,
-			dedupeKey,
-		}: ImproveAnalyticPayload =
-			typeof payload === 'string' ? { message: payload } : (payload ?? {})
+		const { value, currency, params, dedupeKey }: ImproveAnalyticPayload =
+			payload ?? {}
 		const hasValue = typeof value === 'number' && Number.isFinite(value)
 		// The backend requires `params` to be a plain (non-array) object and 400s
 		// the whole event otherwise — drop an invalid value rather than lose the
@@ -382,7 +391,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 			// an over-length value is otherwise rejected with a 400 and the event
 			// is lost.
 			event: truncate(event, MAX_ANALYTIC_FIELD_LENGTH),
-			message: truncate(message || '', MAX_ANALYTIC_FIELD_LENGTH),
+			scope: truncate(scope || '', MAX_ANALYTIC_FIELD_LENGTH),
 			...(hasValue ? { value } : {}),
 			...(currency
 				? { currency: truncate(currency, MAX_CURRENCY_FIELD_LENGTH) }
@@ -397,6 +406,7 @@ export class ImproveClientSDK extends BaseImproveSDK {
 
 			pushDataLayer({
 				event,
+				scope,
 				improve: {
 					visitorId: this.#visitorId,
 				},

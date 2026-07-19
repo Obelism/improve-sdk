@@ -112,9 +112,9 @@ getTestConfig(testSlug: string) => {
         split: number
     }[]
 	events: {
-        start: string
-        metrics: string[]
-        conversion: string
+        start: { event: string; scope: string }
+        metrics: { event: string; scope: string }[]
+        conversion: { event: string; scope: string }
     }
 } | undefined
 ```
@@ -178,8 +178,14 @@ Configure the analytics url to post message towards. Convenient in case add bloc
 ### postAnalytic
 
 ```ts
-postAnalytic = (testSlug: string, event: string, message?: string) =>
-	Promise<Response> | null
+postAnalytic = (
+	event: string,
+	scope: string,
+	payload?: ImproveAnalyticPayload,
+) => Promise<Response> | null
 ```
 
-Posts an analytics message to Improve or the url configured with [setAnalyticsUrls](/docs/sdk/javascript#setanalyticsurls)
+Posts an analytic event to Improve or the url configured with [setAnalyticsUrls](/docs/sdk/javascript#setanalyticsurls).
+`scope` is required — a short, stable identifier for where/what the event refers to
+(e.g. `"homepage_hero_login"`), distinct from the optional `value`/`currency`/`params`/
+`dedupeKey` extras in `payload`.

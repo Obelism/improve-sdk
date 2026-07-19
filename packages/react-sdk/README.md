@@ -69,7 +69,7 @@ Wrapper around [getTestValue](https://improve.obelism.studio/docs/sdk/javascript
 ```ts
 const postAnalytic = usePostAnalytic()
 
-<button onClick={() => postAnalytic(testSlug: string, eventSlug: string, message: string)} />
+<button onClick={() => postAnalytic(event: string, scope: string)} />
 ```
 
 Wrapper around [postAnalytic](https://improve.obelism.studio/docs/sdk/javascript#postanalytic) that's passed down when the context is setup.
