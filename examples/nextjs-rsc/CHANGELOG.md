@@ -1,5 +1,13 @@
 # example-nextjs-rsc
 
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies [02ad5b5]
+  - @obelism/improve-sdk@3.0.0
+  - @obelism/improve-sdk-react@1.1.1
+
 ## 1.0.2
 
 ### Patch Changes

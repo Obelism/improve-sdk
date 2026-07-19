@@ -1,5 +1,12 @@
 # site
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies [02ad5b5]
+  - @obelism/improve-sdk@3.0.0
+
 ## 1.0.6
 
 ### Patch Changes

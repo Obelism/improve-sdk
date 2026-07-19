@@ -1,5 +1,12 @@
 # @obelism/improve-sdk-react
 
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies [02ad5b5]
+  - @obelism/improve-sdk@3.0.0
+
 ## 1.1.0
 
 ### Minor Changes
