@@ -107,10 +107,22 @@ export type ImproveRecommendedEventName =
  */
 export type ImproveEventName = ImproveRecommendedEventName | (string & {})
 
+/**
+ * An event name paired with its required, freeform `scope` — the one
+ * consistent key/value identity used everywhere (SDK, dashboard, test setup):
+ * e.g. `{ event: 'button_click', scope: 'homepage_hero_login' }`. Unlike
+ * `message` in previous SDK versions, `scope` is mandatory and expected to be
+ * a stable, structured string (not display text) — see `postAnalytic`.
+ */
+export type ImproveEventRef = {
+	event: ImproveEventName
+	scope: string
+}
+
 export type ImproveEvents = {
-	start: ImproveEventName
-	metrics: ImproveEventName[]
-	conversion: ImproveEventName
+	start: ImproveEventRef
+	metrics: ImproveEventRef[]
+	conversion: ImproveEventRef
 	/**
 	 * Ordered funnel steps for the multi-step conversion view, when the test
 	 * defines one. The last step is the conversion; when absent, the funnel is
@@ -121,7 +133,8 @@ export type ImproveEvents = {
 
 /**
  * Structured payload for an analytic event, aligned with Google Analytics 4
- * event parameters.
+ * event parameters. `event` and `scope` are passed as `postAnalytic`'s first
+ * two (required) arguments — everything here is optional extras.
  *
  * - `value` (with `currency`) is the numeric measure Improve aggregates into
  *   **revenue / average order value per variant** — pass an order total on your
@@ -130,19 +143,14 @@ export type ImproveEvents = {
  * - `params` is passed through to the GTM dataLayer and stored as JSON, but is
  *   not aggregated by Improve's own results. Use it for a GA4 `ecommerce`
  *   object (`{ ecommerce: { items: [...] } }`) or any custom event parameters.
- * - `message` is kept for the simple single-string case.
  * - `dedupeKey` distinguishes repeated firings of the same event name — see
  *   below.
- *
- * `postAnalytic` also accepts a plain string as a shorthand for `{ message }`.
  */
 export type ImproveAnalyticPayload = {
 	/** Numeric value of the event, e.g. an order total. GA4 `value`. */
 	value?: number
 	/** ISO 4217 currency code for `value`, e.g. `'USD'`. GA4 `currency`. */
 	currency?: string
-	/** A short freeform label stored alongside the event. */
-	message?: string
 	/**
 	 * Extra event parameters, spread onto the GTM dataLayer entry and stored as
 	 * JSON. Provide `{ ecommerce: {...} }` for GA4 ecommerce tags; the SDK clears
