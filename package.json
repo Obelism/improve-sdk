@@ -21,7 +21,7 @@
 		"changeset": "^0.2.6",
 		"lint-staged": "^17.0.8",
 		"prettier": "^3.9.4",
-		"turbo": "^2.10.3",
+		"turbo": "^2.10.8",
 		"typescript": "^6.0.3"
 	},
 	"git": {
